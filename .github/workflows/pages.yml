@@ -4,7 +4,7 @@ name: Pages
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["master", "dev"]
+    branches: ["master"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -49,6 +49,15 @@ jobs:
       - name: Build demo pages
         run: pnpm build
         working-directory: ./bindings/javascript
+
+      - name: Build API docs
+        run: pnpm docs
+        working-directory: ./bindings/javascript
+
+      - name: Prepare GitHub Pages content
+        run: |
+          mkdir -p ./bindings/javascript/test/docs
+          cp -r ./bindings/javascript/docs/* ./bindings/javascript/test/docs/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

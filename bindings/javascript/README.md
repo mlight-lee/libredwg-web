@@ -82,5 +82,5 @@ const db = this.libredwg.convert(dwg);
 One demo app is provided in folder [test](./test/). You can run the following command to launch it.
 
 ```javascript
-pnpm dev
+pnpm demo
 ```
