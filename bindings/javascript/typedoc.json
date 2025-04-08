@@ -1,6 +1,6 @@
 {
     "$schema": "https://typedoc.org/schema.json",
-    "entryPoints": ["src/*"],
+    "entryPoints": ["src/index.ts"],
     "name": "MLightCAD",
     "out": "docs",
     "includeVersion": false,
