@@ -31,10 +31,10 @@ export interface DwgTableCell {
 
 export interface DwgTableEntity extends DwgEntity {
   type: 'ACAD_TABLE'
-  ownerDictionaryId: string
+  ownerDictionaryId?: string
   startPoint: DwgPoint3D
   directionVector: DwgPoint3D
-  attachmentPoint: DwgAttachmentPoint
+  attachmentPoint?: DwgAttachmentPoint
   tableValue: number
   rowCount: number
   columnCount: number
