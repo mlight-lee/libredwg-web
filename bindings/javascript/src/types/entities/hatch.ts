@@ -135,7 +135,7 @@ export interface DwgHatchDefinitionLine {
   dashLengths: number[]
 }
 
-interface DwgHatchEntityBase extends DwgEntity {
+export interface DwgHatchEntityBase extends DwgEntity {
   type: 'HATCH'
   elevationPoint: DwgPoint3D
   extrusionDirection?: DwgPoint3D
