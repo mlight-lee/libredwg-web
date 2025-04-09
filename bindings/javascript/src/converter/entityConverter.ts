@@ -27,6 +27,7 @@ import {
   DwgPoint3D,
   DwgPointEntity,
   DwgRadialDiameterDimensionEntity,
+  DwgTableEntity,
   DwgTextEntity,
   DwgTextHorizontalAlign,
   DwgTextVerticalAlign
@@ -81,6 +82,8 @@ export class LibreEntityConverter {
         return this.convertMText(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_POINT) {
         return this.convertPoint(entity_tio, commonAttrs)
+      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_TABLE) {
+        return this.convertTable(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_TEXT) {
         return this.convertText(entity_tio, commonAttrs)
       }
@@ -580,6 +583,62 @@ export class LibreEntityConverter {
       thickness: thickness,
       extrusionDirection: extrusionDirection,
       angle: angle
+    }
+  }
+
+  private convertTable(
+    entity: Dwg_Object_Entity_Ptr,
+    commonAttrs: DwgCommonAttributes
+  ): DwgTableEntity {
+    const libredwg = this.libredwg
+    const startPoint = libredwg.dwg_dynapi_entity_value(entity, 'ins_pt').data as DwgPoint3D
+    const directionVector = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'horiz_direction'
+    ).data as DwgPoint3D
+    const tableValue = libredwg.dwg_dynapi_entity_value(entity, 'flag_for_table_value')
+      .data as number
+    const rowCount = libredwg.dwg_dynapi_entity_value(entity, 'num_rows')
+      .data as number
+    const columnCount = libredwg.dwg_dynapi_entity_value(entity, 'num_cols')
+      .data as number
+    const row_heights_ptr = libredwg.dwg_dynapi_entity_value(entity, 'row_heights')
+      .data as number
+    const rowHeightArr = libredwg.dwg_ptr_to_double_array(row_heights_ptr, rowCount)
+    const col_widths_ptr = libredwg.dwg_dynapi_entity_value(entity, 'col_widths')
+      .data as number
+    const columnWidthArr = libredwg.dwg_ptr_to_double_array(col_widths_ptr, columnCount)
+    const overrideFlag = libredwg.dwg_dynapi_entity_value(entity, 'table_flag_override')
+      .data as number
+    const borderColorOverrideFlag = libredwg.dwg_dynapi_entity_value(entity, 'border_color_overrides_flag')
+      .data as number
+    const borderLineWeightOverrideFlag = libredwg.dwg_dynapi_entity_value(entity, 'border_lineweight_overrides_flag')
+      .data as number
+    const borderVisibilityOverrideFlag = libredwg.dwg_dynapi_entity_value(entity, 'border_visibility_overrides_flag')
+      .data as number
+    const cells_ptr = libredwg.dwg_dynapi_entity_value(entity, 'cells')
+      .data as number
+
+    return {
+      type: 'ACAD_TABLE',
+      ...commonAttrs,
+      // name: '', // TODO: Double check whether this field is really needed.
+      startPoint: startPoint,
+      directionVector: directionVector,
+      // attachmentPoint: DwgAttachmentPoint
+      tableValue: tableValue,
+      rowCount: rowCount,
+      columnCount: columnCount,
+      overrideFlag: overrideFlag,
+      borderColorOverrideFlag: borderColorOverrideFlag,
+      borderLineWeightOverrideFlag: borderLineWeightOverrideFlag,
+      borderVisibilityOverrideFlag: borderVisibilityOverrideFlag,
+      rowHeightArr: rowHeightArr,
+      columnWidthArr: columnWidthArr,
+      tableStyleId: '', // TODO: Set the correct value
+      blockRecordHandle: 0, // TODO: Set the correct value 
+      cells: DwgTableCell[],
+      bmpPreview: ''
     }
   }
 

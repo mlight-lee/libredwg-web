@@ -32,8 +32,6 @@ export interface DwgTableCell {
 export interface DwgTableEntity extends DwgEntity {
   type: 'ACAD_TABLE'
   ownerDictionaryId: string
-  name: string
-  version: number
   startPoint: DwgPoint3D
   directionVector: DwgPoint3D
   attachmentPoint: DwgAttachmentPoint
@@ -47,7 +45,7 @@ export interface DwgTableEntity extends DwgEntity {
   rowHeightArr: number[]
   columnWidthArr: number[]
   tableStyleId?: string
-  blockRecordHandle?: string
+  blockRecordHandle?: number
   cells: DwgTableCell[]
   bmpPreview: string
 }
