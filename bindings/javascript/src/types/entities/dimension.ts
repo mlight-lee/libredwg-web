@@ -1,4 +1,4 @@
-import { DwgPoint3D } from '../common'
+import { DwgPoint2D, DwgPoint3D } from '../common'
 import { DwgEntity } from './entity'
 
 export declare enum DwgDimensionType {
@@ -73,10 +73,10 @@ export declare enum DwgDimensionToleranceTextVertical {
 export interface DwgDimensionEntityCommon extends DwgEntity {
   type: 'DIMENSION'
   subclassMarker: string
-  version: string
+  version: number
   name: string
   definitionPoint: DwgPoint3D
-  textPoint: DwgPoint3D
+  textPoint: DwgPoint2D
   dimensionType: DwgDimensionType
   attachmentPoint: DwgAttachmentPoint
   textLineSpacingStyle?: DwgDimensionTextLineSpacing
@@ -91,7 +91,7 @@ export interface DwgDimensionEntityCommon extends DwgEntity {
 
 export interface DwgAlignedDimensionEntity extends DwgDimensionEntityCommon {
   subclassMarker: 'AcDbAlignedDimension' | 'AcDbRotatedDimension'
-  insertionPoint?: DwgPoint3D
+  insertionPoint?: DwgPoint2D
   subDefinitionPoint1: DwgPoint3D
   subDefinitionPoint2: DwgPoint3D
   rotationAngle: number

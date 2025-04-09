@@ -15,7 +15,7 @@ export interface DwgMTextEntity extends DwgEntity {
   width: number
   attachmentPoint: DwgAttachmentPoint
   drawingDirection: DwgMTextDrawingDirection
-  text: string[]
+  text: string
   styleName: string
   extrusionDirection: DwgPoint3D
   direction: DwgPoint3D
@@ -23,16 +23,16 @@ export interface DwgMTextEntity extends DwgEntity {
   lineSpacingStyle: number
   lineSpacing: number
   backgroundFill: number
-  backgroundColor: number
+  // backgroundColor: number
   fillBoxScale: number
   backgroundFillColor: number
   backgroundFillTransparency: number
   columnType: number
-  columnCount: number
+  // columnCount: number
   columnFlowReversed: number
   columnAutoHeight: number
   columnWidth: number
   columnGutter: number
-  columnHeight: number
-  annotationHeight: number
+  columnHeightCount: number
+  columnHeights: number[]
 }

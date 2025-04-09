@@ -140,7 +140,10 @@ export class LibreDwgConverter {
     }
   }
 
-  private convertEntities(obj: Dwg_Object_Ptr, ownerHandle: number): DwgEntity[] {
+  private convertEntities(
+    obj: Dwg_Object_Ptr,
+    ownerHandle: number
+  ): DwgEntity[] {
     const libredwg = this.libredwg
     const converter = this.entityConverter
     const entities: DwgEntity[] = []
