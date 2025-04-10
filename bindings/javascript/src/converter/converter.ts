@@ -1,13 +1,3 @@
-import { Dwg_Object_Type } from '../enums'
-import {
-  Dwg_Color,
-  Dwg_Data_Ptr,
-  Dwg_LTYPE_Dash,
-  Dwg_Object_Object_Ptr,
-  Dwg_Object_Ptr,
-  Dwg_Object_Ref_Ptr,
-  LibreDwgEx
-} from '../libredwg'
 import {
   DwgBlockRecordTableEntry,
   DwgCommonObject,
@@ -24,7 +14,17 @@ import {
   DwgPoint3D,
   DwgStyleTableEntry,
   DwgVPortTableEntry
-} from '../types'
+} from '../database'
+import { Dwg_Object_Type } from '../enums'
+import {
+  Dwg_Color,
+  Dwg_Data_Ptr,
+  Dwg_LTYPE_Dash,
+  Dwg_Object_Object_Ptr,
+  Dwg_Object_Ptr,
+  Dwg_Object_Ref_Ptr,
+  LibreDwgEx
+} from '../libredwg'
 import { LibreEntityConverter } from './entityConverter'
 
 /**

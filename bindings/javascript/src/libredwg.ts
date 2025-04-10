@@ -1,8 +1,8 @@
 import { MainModule } from '../wasm/libredwg-web'
 import createModule from '../wasm/libredwg-web.js'
 import { LibreDwgConverter } from './converter'
+import { DwgPoint2D, DwgPoint3D } from './database'
 import { Dwg_File_Type, Dwg_Object_Type } from './enums'
-import { DwgPoint2D, DwgPoint3D } from './types'
 
 export { createModule }
 export type Dwg_Array_Ptr = number

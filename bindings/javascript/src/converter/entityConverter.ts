@@ -1,10 +1,3 @@
-import { Dwg_Object_Type } from '../enums'
-import {
-  Dwg_Color,
-  Dwg_Object_Entity_Ptr,
-  Dwg_Object_Ptr,
-  LibreDwgEx
-} from '../libredwg'
 import {
   DwgAlignedDimensionEntity,
   DwgAngularDimensionEntity,
@@ -32,7 +25,14 @@ import {
   DwgTextEntity,
   DwgTextHorizontalAlign,
   DwgTextVerticalAlign
-} from '../types'
+} from '../database'
+import { Dwg_Object_Type } from '../enums'
+import {
+  Dwg_Color,
+  Dwg_Object_Entity_Ptr,
+  Dwg_Object_Ptr,
+  LibreDwgEx
+} from '../libredwg'
 
 type DwgCommonAttributes = Omit<DwgEntity, 'type'>
 type DwgDimensionCommonAttributes = Omit<
