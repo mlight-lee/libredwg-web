@@ -20,6 +20,7 @@ import {
   DwgPoint3D,
   DwgPointEntity,
   DwgRadialDiameterDimensionEntity,
+  DwgSplineEntity,
   DwgTableCell,
   DwgTableEntity,
   DwgTextEntity,
@@ -84,6 +85,8 @@ export class LibreEntityConverter {
         return this.convertMText(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_POINT) {
         return this.convertPoint(entity_tio, commonAttrs)
+      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_SPLINE) {
+        return this.convertSpline(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_TABLE) {
         return this.convertTable(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_TEXT) {
@@ -339,15 +342,17 @@ export class LibreEntityConverter {
     if (block_header_ref) {
       const block_header_obj = libredwg.dwg_ref_get_object(block_header_ref)
       if (block_header_obj) {
-        const block_header_tio = libredwg.dwg_object_to_object_tio(block_header_obj)
+        const block_header_tio =
+          libredwg.dwg_object_to_object_tio(block_header_obj)
         if (block_header_tio) {
           name = libredwg.dwg_dynapi_entity_value(block_header_tio, 'name')
-          .data as string
+            .data as string
         }
       }
     }
     if (name === '') {
-      name = libredwg.dwg_dynapi_entity_value(entity, 'block_name').data as string
+      name = libredwg.dwg_dynapi_entity_value(entity, 'block_name')
+        .data as string
     }
 
     const insertionPoint = libredwg.dwg_dynapi_entity_value(entity, 'ins_pt')
@@ -604,6 +609,89 @@ export class LibreEntityConverter {
       thickness: thickness,
       extrusionDirection: extrusionDirection,
       angle: angle
+    }
+  }
+
+  private convertSpline(
+    entity: Dwg_Object_Entity_Ptr,
+    commonAttrs: DwgCommonAttributes
+  ): DwgSplineEntity {
+    const libredwg = this.libredwg
+    const flag = libredwg.dwg_dynapi_entity_value(entity, 'splineflags')
+      .data as number
+    const degree = libredwg.dwg_dynapi_entity_value(entity, 'degree')
+      .data as number
+
+    // Convert knots
+    const knotTolerance = libredwg.dwg_dynapi_entity_value(entity, 'knot_tol')
+      .data as number
+    const numberOfKnots = libredwg.dwg_dynapi_entity_value(entity, 'num_knots')
+      .data as number
+    const knots_ptr = libredwg.dwg_dynapi_entity_value(entity, 'knots')
+      .data as number
+    const knots = libredwg.dwg_ptr_to_double_array(knots_ptr, numberOfKnots)
+
+    // Convert fit points
+    const fitTolerance = libredwg.dwg_dynapi_entity_value(entity, 'fit_tol')
+      .data as number
+    const numberOfFitPoints = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'num_fit_pts'
+    ).data as number
+    const fit_pts_ptr = libredwg.dwg_dynapi_entity_value(entity, 'fit_pts')
+      .data as number
+    const fitPoints = libredwg.dwg_ptr_to_point3d_array(
+      fit_pts_ptr,
+      numberOfFitPoints
+    )
+
+    // Convert control points
+    const weighted = libredwg.dwg_dynapi_entity_value(entity, 'weighted')
+      .data as number
+    const controlTolerance = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'ctrl_tol'
+    ).data as number
+    const numberOfControlPoints = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'num_ctrl_pts'
+    ).data as number
+    const ctrl_pts_ptr = libredwg.dwg_dynapi_entity_value(entity, 'ctrl_pts')
+      .data as number
+    const controlPoints = libredwg.dwg_ptr_to_point4d_array(
+      ctrl_pts_ptr,
+      numberOfControlPoints
+    )
+
+    const startTangent = libredwg.dwg_dynapi_entity_value(entity, 'beg_tan_vec')
+      .data as DwgPoint3D
+    const endTangent = libredwg.dwg_dynapi_entity_value(entity, 'end_tan_vec')
+      .data as DwgPoint3D
+
+    return {
+      type: 'SPLINE',
+      ...commonAttrs,
+      // normal?: DwgPoint3D
+      flag: flag,
+      degree: degree,
+      numberOfKnots: numberOfKnots,
+      numberOfControlPoints: numberOfControlPoints,
+      numberOfFitPoints: numberOfFitPoints,
+      knotTolerance: knotTolerance,
+      controlTolerance: controlTolerance,
+      fitTolerance: fitTolerance,
+      startTangent: startTangent,
+      endTangent: endTangent,
+      knots: knots,
+      weights: weighted ? controlPoints.map(value => value.w) : undefined,
+      controlPoints: controlPoints.map(value => {
+        return {
+          x: value.x,
+          y: value.y,
+          z: value.z
+        }
+      }),
+      fitPoints: fitPoints
     }
   }
 

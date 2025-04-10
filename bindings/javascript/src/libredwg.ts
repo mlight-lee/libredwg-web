@@ -1,7 +1,7 @@
 import { MainModule } from '../wasm/libredwg-web'
 import createModule from '../wasm/libredwg-web.js'
 import { LibreDwgConverter } from './converter'
-import { DwgPoint2D, DwgPoint3D } from './database'
+import { DwgPoint2D, DwgPoint3D, DwgPoint4D } from './database'
 import { 
   Dwg_Array_Ptr,
   Dwg_Color,
@@ -333,6 +333,16 @@ export class LibreDwg {
    */
   dwg_ptr_to_point3d_array(ptr: Dwg_Array_Ptr, size: number): DwgPoint3D[] {
     return this.wasmInstance.dwg_ptr_to_point3d_array(ptr, size)
+  }
+
+  /**
+   * Converts one C++ 4d point array to one JavaScript 4d point array.
+   * @param ptr Pointer to C++ 4d point array.
+   * @param size The size of C++ 4d point array.
+   * @returns Returns one JavaScript 4d point array from the specified C++ 4d point array.
+   */
+  dwg_ptr_to_point4d_array(ptr: Dwg_Array_Ptr, size: number): DwgPoint4D[] {
+    return this.wasmInstance.dwg_ptr_to_point4d_array(ptr, size)
   }
 
   /**

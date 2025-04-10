@@ -8,3 +8,10 @@ export interface DwgPoint3D {
   y: number
   z: number
 }
+
+export interface DwgPoint4D {
+  x: number
+  y: number
+  z: number
+  w: number
+}

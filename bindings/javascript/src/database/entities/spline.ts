@@ -17,5 +17,5 @@ export interface DwgSplineEntity extends DwgEntity {
   knots: number[]
   weights?: number[]
   controlPoints: DwgPoint3D[]
-  fitPoints: number[]
+  fitPoints: DwgPoint3D[]
 }
