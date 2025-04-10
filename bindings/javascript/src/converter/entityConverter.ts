@@ -329,8 +329,27 @@ export class LibreEntityConverter {
     commonAttrs: DwgCommonAttributes
   ): DwgInsertEntity {
     const libredwg = this.libredwg
-    const name = libredwg.dwg_dynapi_entity_value(entity, 'block_name')
-      .data as string
+
+    // Get block name
+    let name = ''
+    const block_header_ref = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'block_header'
+    ).data as number
+    if (block_header_ref) {
+      const block_header_obj = libredwg.dwg_ref_get_object(block_header_ref)
+      if (block_header_obj) {
+        const block_header_tio = libredwg.dwg_object_to_object_tio(block_header_obj)
+        if (block_header_tio) {
+          name = libredwg.dwg_dynapi_entity_value(block_header_tio, 'name')
+          .data as string
+        }
+      }
+    }
+    if (name === '') {
+      name = libredwg.dwg_dynapi_entity_value(entity, 'block_name').data as string
+    }
+
     const insertionPoint = libredwg.dwg_dynapi_entity_value(entity, 'ins_pt')
       .data as DwgPoint3D
     const scale = libredwg.dwg_dynapi_entity_value(entity, 'scale')
