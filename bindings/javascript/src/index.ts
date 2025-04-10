@@ -1,3 +1,3 @@
-export * from './enums'
+export * from './libredwg'
 export * from './database'
 export * from './libredwg'

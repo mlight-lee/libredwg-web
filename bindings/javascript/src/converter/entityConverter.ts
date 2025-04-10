@@ -26,13 +26,13 @@ import {
   DwgTextHorizontalAlign,
   DwgTextVerticalAlign
 } from '../database'
-import { Dwg_Object_Type } from '../enums'
+import { LibreDwgEx } from '../libredwg'
 import {
   Dwg_Color,
   Dwg_Object_Entity_Ptr,
   Dwg_Object_Ptr,
-  LibreDwgEx
-} from '../libredwg'
+  Dwg_Object_Type
+} from '../types'
 
 type DwgCommonAttributes = Omit<DwgEntity, 'type'>
 type DwgDimensionCommonAttributes = Omit<

@@ -15,7 +15,7 @@ import {
   DwgStyleTableEntry,
   DwgVPortTableEntry
 } from '../database'
-import { Dwg_Object_Type } from '../enums'
+import { LibreDwgEx } from '../libredwg'
 import {
   Dwg_Color,
   Dwg_Data_Ptr,
@@ -23,8 +23,8 @@ import {
   Dwg_Object_Object_Ptr,
   Dwg_Object_Ptr,
   Dwg_Object_Ref_Ptr,
-  LibreDwgEx
-} from '../libredwg'
+  Dwg_Object_Type
+} from '../types'
 import { LibreEntityConverter } from './entityConverter'
 
 /**
