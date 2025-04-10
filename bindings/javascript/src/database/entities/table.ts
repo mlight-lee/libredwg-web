@@ -31,6 +31,7 @@ export interface DwgTableCell {
 
 export interface DwgTableEntity extends DwgEntity {
   type: 'ACAD_TABLE'
+  name: string
   ownerDictionaryId?: string
   startPoint: DwgPoint3D
   directionVector: DwgPoint3D

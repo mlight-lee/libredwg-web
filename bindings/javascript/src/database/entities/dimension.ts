@@ -119,7 +119,7 @@ export interface DwgRadialDiameterDimensionEntity
   leaderLength: number
 }
 
-export type DimensionEntity = DwgDimensionEntityCommon &
+export type DwgDimensionEntity = DwgDimensionEntityCommon &
   (
     | Partial<DwgAlignedDimensionEntity>
     | Partial<DwgAngularDimensionEntity>

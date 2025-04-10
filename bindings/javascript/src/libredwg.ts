@@ -14,7 +14,8 @@ import {
   Dwg_Object_Object_Ptr,
   Dwg_Object_Ptr,
   Dwg_Object_Ref,
-  Dwg_Object_Type
+  Dwg_Object_Type,
+  Dwg_TABLE_Cell
 } from './types'
 
 export { createModule }
@@ -345,6 +346,19 @@ export class LibreDwg {
     size: number
   ): Dwg_LTYPE_Dash[] {
     return this.wasmInstance.dwg_ptr_to_ltype_dash_array(ptr, size)
+  }
+
+  /**
+   * Converts one C++ table cell array to one JavaScript table cell array.
+   * @param ptr Pointer to C++ table cell array.
+   * @param size The size of C++ table cell array.
+   * @returns Returns one JavaScript table cell array from the specified C++ table cell array.
+   */
+  dwg_ptr_to_table_cell_array(
+    ptr: Dwg_Array_Ptr,
+    size: number
+  ): Dwg_TABLE_Cell[] {
+    return this.wasmInstance.dwg_ptr_to_table_cell_array(ptr, size)
   }
 
   /**

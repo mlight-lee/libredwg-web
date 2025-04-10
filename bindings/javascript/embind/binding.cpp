@@ -142,59 +142,56 @@ emscripten::val dwg_ptr_to_ltype_dash_array_wrapper(uintptr_t array_ptr, size_t 
 }
 
 emscripten::val dwg_ptr_to_table_cell_array_wrapper(uintptr_t array_ptr, size_t size) {
-  Dwg_TableCell* array = reinterpret_cast<Dwg_TableCell*>(array_ptr);
+  Dwg_TABLE_Cell* array = reinterpret_cast<Dwg_TABLE_Cell*>(array_ptr);
 
   emscripten::val cells = emscripten::val::array();
   for (int i = 0; i < size; ++i) {
     emscripten::val cell_obj = emscripten::val::object();
     auto cell = array[i];
-    cell_obj.set("flag", cell.flag);
-    cell_obj.set("text", std::string(cell.tooltip));
-    cell_obj.set("has_linked_data", cell.has_linked_data);
-    cell_obj.set("data_link", reinterpret_cast<uintptr_t>(cell.data_link));
-    cell_obj.set("num_rows", cell.num_rows);
-    cell_obj.set("num_cols", cell.num_cols);
+    cell_obj.set("type", cell.type);
+    cell_obj.set("flags", cell.flags);
+    cell_obj.set("is_merged_value", cell.is_merged_value);
+    cell_obj.set("is_autofit_flag", cell.is_autofit_flag);
+    cell_obj.set("merged_width_flag", cell.merged_width_flag);
+    cell_obj.set("merged_height_flag", cell.merged_height_flag);
+    cell_obj.set("rotation", cell.type);
+    cell_obj.set("text_value", std::string(cell.text_value));
+    cell_obj.set("text_style", reinterpret_cast<uintptr_t>(cell.text_style));
+    cell_obj.set("block_handle", object_ref_to_js_object(cell.block_handle));
+    cell_obj.set("block_scale", cell.block_scale);
+    cell_obj.set("additional_data_flag", cell.additional_data_flag);
+    cell_obj.set("cell_flag_override", cell.cell_flag_override);
+    cell_obj.set("virtual_edge_flag", cell.virtual_edge_flag);
+    cell_obj.set("cell_alignment", cell.cell_alignment);
+    cell_obj.set("bg_fill_none", cell.bg_fill_none);
+    cell_obj.set("bg_color", color_to_js_object(&cell.bg_color));
+    cell_obj.set("content_color", color_to_js_object(&cell.content_color));
+    cell_obj.set("text_height", cell.text_height);
+    cell_obj.set("top_grid_color", color_to_js_object(&cell.top_grid_color));
+    cell_obj.set("top_grid_linewt", cell.top_grid_linewt);
+    cell_obj.set("top_visibility", cell.top_visibility);
+    cell_obj.set("right_grid_color", color_to_js_object(&cell.right_grid_color));
+    cell_obj.set("right_grid_linewt", cell.right_grid_linewt);
+    cell_obj.set("right_visibility", cell.right_visibility);
+    cell_obj.set("bottom_grid_color", color_to_js_object(&cell.bottom_grid_color));
+    cell_obj.set("bottom_grid_linewt", cell.bottom_grid_linewt);
+    cell_obj.set("bottom_visibility", cell.bottom_visibility);
+    cell_obj.set("left_grid_color", color_to_js_object(&cell.left_grid_color));
+    cell_obj.set("left_grid_linewt", cell.left_grid_linewt);
+    cell_obj.set("left_visibility", cell.left_visibility);
+    cell_obj.set("num_attr_defs", cell.num_attr_defs);
 
-    auto num_cell_contents = cell.num_cell_contents;
-    emscripten::val cell_contents_obj = emscripten::val::array();
-    for (int j = 0; j < num_cell_contents; ++j) {
-      auto cell_content = cell.cell_contents[j];
-      emscripten::val cell_content_obj = emscripten::val::object();
-      cell_content_obj.set("type", cell_content.type);
-      cell_content_obj.set("has_content_format_overrides", cell_content.has_content_format_overrides);
-      
-      // Convert content_format
-      emscripten::val content_format_obj = emscripten::val::object();
-      auto content_format = cell_content.content_format;
-      content_format_obj.set("property_override_flags", content_format.property_override_flags);
-      content_format_obj.set("property_flags", content_format.property_flags);
-      content_format_obj.set("value_data_type", content_format.value_data_type);
-      content_format_obj.set("value_unit_type", content_format.value_unit_type);
-      content_format_obj.set("value_format_string", std::string(content_format.value_format_string));
-      content_format_obj.set("rotation", content_format.rotation);
-      content_format_obj.set("block_scale", content_format.block_scale);
-      content_format_obj.set("cell_alignment", content_format.cell_alignment);
-      content_format_obj.set("content_color", color_to_js_object(&content_format.content_color));
-      content_format_obj.set("text_style", reinterpret_cast<uintptr_t>(content_format.text_style));
-      content_format_obj.set("text_height", content_format.text_height);
-      cell_content_obj.set("content_format", cell_content.content_format);
-
-      // Convert attrs
-      auto num_attrs = cell_content.num_attrs;
-      emscripten::val attrs_obj = emscripten::val::array();
-      for (int k = 0; k < num_attrs; ++k) {
-        auto attr = cell_content.attrs[k];
-        emscripten::val attr_obj = emscripten::val::object();
-        attr_obj.set("attdef", reinterpret_cast<uintptr_t>(attr.attdef));
-        attr_obj.set("value", attr.value);
-        attr_obj.set("index", attr.index);
-        attrs_obj.call<void>("push", attr_obj);
-      }
-      cell_content_obj.set("attrs", attrs_obj);
-
-      cell_contents_obj.call<void>("push", cell_content_obj);
+    emscripten::val attr_defs_obj = emscripten::val::array();
+    for (int i = 0; i < size; ++i) {
+      auto attr_def = cell.attr_defs[i];
+      emscripten::val attr_def_obj = emscripten::val::object();
+      attr_def_obj.set("attdef", object_ref_to_js_object(attr_def.attdef));
+      attr_def_obj.set("text", std::string(attr_def.text));
+      attr_def_obj.set("index", attr_def.index);
+      attr_defs_obj.call<void>("push", attr_def_obj);
     }
-    cell_obj.set("cell_contents", cell_contents_obj);
+    cell_obj.set("attr_defs", attr_defs_obj);
+    
     cells.call<void>("push", cell_obj);
   }
   return cells;

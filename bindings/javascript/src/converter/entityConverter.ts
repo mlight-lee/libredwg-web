@@ -31,7 +31,8 @@ import {
   Dwg_Color,
   Dwg_Object_Entity_Ptr,
   Dwg_Object_Ptr,
-  Dwg_Object_Type
+  Dwg_Object_Type,
+  Dwg_TABLE_Cell
 } from '../types'
 
 type DwgCommonAttributes = Omit<DwgEntity, 'type'>
@@ -592,6 +593,8 @@ export class LibreEntityConverter {
     commonAttrs: DwgCommonAttributes
   ): DwgTableEntity {
     const libredwg = this.libredwg
+    const name = libredwg.dwg_dynapi_subclass_value(entity, 'ldata', 'name')
+      .data as string
     const startPoint = libredwg.dwg_dynapi_entity_value(entity, 'ins_pt')
       .data as DwgPoint3D
     const directionVector = libredwg.dwg_dynapi_entity_value(
@@ -643,12 +646,11 @@ export class LibreEntityConverter {
     const cells_ptr = libredwg.dwg_dynapi_entity_value(entity, 'cells')
       .data as number
     const cells = libredwg.dwg_ptr_to_table_cell_array(cells_ptr, num_cells)
-      .data as DwgTableCell[]
 
     return {
       type: 'ACAD_TABLE',
       ...commonAttrs,
-      // name: '', // TODO: Double check whether this field is really needed.
+      name: name,
       startPoint: startPoint,
       directionVector: directionVector,
       // attachmentPoint: DwgAttachmentPoint
@@ -663,9 +665,42 @@ export class LibreEntityConverter {
       columnWidthArr: columnWidthArr,
       tableStyleId: '', // TODO: Set the correct value
       blockRecordHandle: 0, // TODO: Set the correct value
-      cells: cells,
+      cells: this.convertTableCells(cells),
       bmpPreview: ''
     }
+  }
+
+  private convertTableCells(cells: Dwg_TABLE_Cell[]) {
+    const converted: DwgTableCell[] = []
+    cells.forEach(cell => {
+      return {
+        text: cell.text_value,
+        attachmentPoint: cell.cell_alignment as DwgAttachmentPoint,
+        textStyle: cell.text_style, // TODO: Set the text style name instead of handle
+        rotation: cell.rotation,
+        cellType: cell.type,
+        flagValue: cell.flags,
+        mergedValue: cell.is_merged_value,
+        autoFit: cell.is_autofit_flag,
+        // borderWidth?: number
+        // borderHeight?: number
+        topBorderVisibility: cell.top_visibility,
+        bottomBorderVisibility: cell.bottom_visibility,
+        leftBorderVisibility: cell.left_visibility,
+        rightBorderVisibility: cell.right_visibility,
+        overrideFlag: cell.cell_flag_override,
+        virtualEdgeFlag: cell.virtual_edge_flag,
+        // fieldObjetId?: string
+        blockTableRecordI: cell.block_handle.absolute_ref,
+        blockScale: cell.block_scale,
+        blockAttrNum: cell.attr_defs.length,
+        attrDefineId: cell.attr_defs.map(value => value.attdef.absolute_ref),
+        // attrText?: string
+        // textHeight: number
+        extendedCellFlags: cell.additional_data_flag
+      }
+    })
+    return converted
   }
 
   private convertText(
