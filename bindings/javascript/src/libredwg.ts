@@ -94,6 +94,7 @@ export class LibreDwg {
   /**
    * Returns all of entities in the model space. Each item in returned array
    * is one Dwg_Object pointer (Dwg_Object*).
+   * @group GetAll Methods
    * @param data Pointer to Dwg_Data instance.
    * @returns Returns all of entities in the model space.
    */
@@ -515,16 +516,63 @@ export class LibreDwg {
 
   /**
    * Generic field value getter. Used to get the field value of one object or entity.
+   * @group Dynamic API Methods
    * @param obj Pointer to one object or entity
    * @param field Field name of one object or entity
    * @returns Returns the field value of one object or entity.
    */
-  dwg_dynapi_entity_value(obj: number, field: string): Dwg_Field_Value {
+  dwg_dynapi_entity_value(
+    obj: Dwg_Object_Object_TIO_Ptr | Dwg_Object_Entity_TIO_Ptr,
+    field: string
+  ): Dwg_Field_Value {
     return this.wasmInstance.dwg_dynapi_entity_value(obj, field)
   }
 
   /**
+   * Header field value getter. Used to get the field value of dwg/dxf header.
+   * @group Dynamic API Methods
+   * @param data Pointer to Dwg_Data instance.
+   * @param field Field name of header.
+   * @returns Returns the field value of dwg/dxf header.
+   */
+  dwg_dynapi_header_value(data: Dwg_Data_Ptr, field: string): Dwg_Field_Value {
+    return this.wasmInstance.dwg_dynapi_header_value(data, field)
+  }
+
+  /**
+   * The common field value getter. Used to get the value of object or entity common fields.
+   * @group Dynamic API Methods
+   * @param obj Pointer to one object or entity
+   * @param field The name of object or entity common fields.
+   * @returns Returns the value of object or entity common fields.
+   */
+  dwg_dynapi_common_value(
+    obj: Dwg_Object_Object_TIO_Ptr | Dwg_Object_Entity_TIO_Ptr,
+    field: string
+  ): Dwg_Field_Value {
+    return this.wasmInstance.dwg_dynapi_common_value(obj, field)
+  }
+
+  /**
+   * The field of one object or entity may not be primitive type. It means one field may consist of
+   * multiple sub-fields. This method is used to get the sub-field value of those complex field.
+   * @group Dynamic API Methods
+   * @param obj Pointer to one object or entity.
+   * @param subclass The class name of the field with complex type.
+   * @param field The field name of one object or entit.
+   * @returns Returns the sub-field value of one complex field.
+   */
+  dwg_dynapi_subclass_value(
+    obj: Dwg_Object_Object_TIO_Ptr | Dwg_Object_Entity_TIO_Ptr,
+    subclass: string,
+    field: string
+  ): Dwg_Field_Value {
+    return this.wasmInstance.dwg_dynapi_subclass_value(obj, subclass, field)
+  }
+
+  /**
    * Returns the handle of one Dwg_Object instance.
+   * @group Dwg_Object Methods
    * @param ptr Pointer to one Dwg_Object instance.
    * @returns Returns the handle of one Dwg_Object instance.
    */
@@ -534,6 +582,7 @@ export class LibreDwg {
 
   /**
    * Returns the handle of one Dwg_Object_Object instance.
+   * @group Dwg_Object_Object Methods
    * @param ptr Pointer to one Dwg_Object_Object instance.
    * @returns Returns the handle of one Dwg_Object_Object instance.
    */
@@ -541,6 +590,12 @@ export class LibreDwg {
     return this.wasmInstance.dwg_object_object_get_handle_object(ptr)
   }
 
+  /**
+   * Returns the owner handle of one Dwg_Object_Object instance.
+   * @group Dwg_Object_Object Methods
+   * @param ptr Pointer to one Dwg_Object_Object instance.
+   * @returns Returns the owner handle of one Dwg_Object_Object instance.
+   */
   dwg_object_object_get_ownerhandle_object(
     ptr: Dwg_Object_Object_Ptr
   ): Dwg_Object_Ref {
@@ -549,6 +604,7 @@ export class LibreDwg {
 
   /**
    * Returns the handle of one Dwg_Object_Entity instance.
+   * @group Dwg_Object_Entity Methods
    * @param ptr Pointer to one Dwg_Object_Entity instance.
    * @returns Returns the handle of one Dwg_Object_Entity instance.
    */
@@ -556,12 +612,24 @@ export class LibreDwg {
     return this.wasmInstance.dwg_object_entity_get_handle_object(ptr)
   }
 
+  /**
+   * Returns the owner handle of one Dwg_Object_Entity instance.
+   * @group Dwg_Object_Entity Methods
+   * @param ptr Pointer to one Dwg_Object_Entity instance.
+   * @returns Returns the owner handle of one Dwg_Object_Entity instance.
+   */
   dwg_object_entity_get_ownerhandle_object(
     ptr: Dwg_Object_Entity_Ptr
   ): Dwg_Object_Ref {
     return this.wasmInstance.dwg_object_entity_get_ownerhandle_object(ptr)
   }
 
+  /**
+   * Returns color value of one Dwg_Object_Entity instance.
+   * @group Dwg_Object_Entity Methods
+   * @param ptr Pointer to one Dwg_Object_Entity instance.
+   * @returns Returns color value of one Dwg_Object_Entity instance.
+   */
   dwg_object_entity_get_color_object(ptr: Dwg_Object_Entity_Ptr): Dwg_Color {
     return this.wasmInstance.dwg_object_entity_get_color_object(ptr)
   }
