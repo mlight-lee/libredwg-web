@@ -22,3 +22,9 @@ emscripten::val handle_to_js_object(Dwg_Handle* handle);
 emscripten::val object_ref_to_js_object(BITCODE_H object_ref);
 
 emscripten::val color_to_js_object(const Dwg_Color* color);
+
+emscripten::val point2d_to_js_object(const dwg_point_2d* point);
+
+emscripten::val point3d_to_js_object(const dwg_point_3d* point);
+
+emscripten::val point4d_to_js_object(const Dwg_SPLINE_control_point* point);

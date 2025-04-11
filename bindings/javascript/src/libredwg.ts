@@ -13,6 +13,8 @@ import {
   Dwg_Field_Value,
   Dwg_File_Type,
   Dwg_Handle,
+  Dwg_HATCH_DefLine,
+  Dwg_HATCH_Path,
   Dwg_LTYPE_Dash,
   Dwg_Object_BLOCK_HEADER_Ptr,
   Dwg_Object_BLOCK_Ptr,
@@ -512,6 +514,34 @@ export class LibreDwg {
     size: number
   ): Dwg_TABLE_Cell[] {
     return this.wasmInstance.dwg_ptr_to_table_cell_array(ptr, size)
+  }
+
+  /**
+   * Converts one C++ hatch definition line array to one JavaScript hatch definition line array.
+   * @group Array Methods
+   * @param ptr Pointer to C++ hatch definition line array.
+   * @param size The size of C++ hatch definition line array.
+   * @returns Returns one JavaScript hatch definition line array from the specified C++ hatch definition line array.
+   */
+  dwg_ptr_to_hatch_defline_array(
+    ptr: Dwg_Array_Ptr,
+    size: number
+  ): Dwg_HATCH_DefLine[] {
+    return this.wasmInstance.dwg_ptr_to_hatch_defline_array(ptr, size)
+  }
+
+  /**
+   * Converts one C++ hatch path array to one JavaScript hatch path array.
+   * @group Array Methods
+   * @param ptr Pointer to C++ hatch path array.
+   * @param size The size of C++ hatch path array.
+   * @returns Returns one JavaScript hatch path array from the specified C++ hatch path array.
+   */
+  dwg_ptr_to_hatch_path_array(
+    ptr: Dwg_Array_Ptr,
+    size: number
+  ): Dwg_HATCH_Path[] {
+    return this.wasmInstance.dwg_ptr_to_hatch_path_array(ptr, size)
   }
 
   /**
