@@ -6,6 +6,24 @@ export type Dwg_Object_Ptr = number
 export type Dwg_Object_Ref_Ptr = number
 export type Dwg_Object_Object_Ptr = number
 export type Dwg_Object_Entity_Ptr = number
+export type Dwg_Object_Object_TIO_Ptr = number
+export type Dwg_Object_Entity_TIO_Ptr = number
+
+export type Dwg_Object_LAYER_Ptr = number
+export type Dwg_Object_LTYPE_Ptr = number
+export type Dwg_Object_STYLE_Ptr = number
+export type Dwg_Object_DIMSTYLE_Ptr = number
+export type Dwg_Object_VPORT_Ptr = number
+export type Dwg_Object_BLOCK_Ptr = number
+export type Dwg_Object_BLOCK_HEADER_Ptr = number
+export type Dwg_Object_IMAGEDEF_Ptr = number
+export type Dwg_Object_VERTEX_2D_Ptr = number
+export type Dwg_Object_VERTEX_3D_Ptr = number
+
+export type Dwg_Entity_POLYLINE_2D_Ptr = number
+export type Dwg_Entity_POLYLINE_3D_Ptr = number
+export type Dwg_Entity_IMAGE_Ptr = number
+export type Dwg_Entity_LWPOLYLINE_Ptr = number
 
 export interface Dwg_Handle {
   code: number
