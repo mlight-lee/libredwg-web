@@ -50,6 +50,10 @@ If you want those functionalities, just modify command `build:prepare` defined i
 
 There are two approaches to use this package. No matter which approach to use, please do remember copying wasm file (libredwg.wasm) to the same folder as your JavaScript bundle file when deploying your application. 
 
+```bash
+npm install @mlightcad/libredwg-web
+```
+
 ### Use Raw Web Assembly
 
 The raw web assembly module (wasm file and JavaScript glue code file) is stored in folder [wasm](./wasm/). 

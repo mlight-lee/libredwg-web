@@ -5,6 +5,7 @@ import {
   DwgDatabase,
   DwgDimStyleTableEntry,
   DwgEntity,
+  DwgHeader,
   DwgImageDefObject,
   DwgLayerTableEntry,
   DwgLayoutObject,
@@ -64,9 +65,13 @@ export class LibreDwgConverter {
       objects: {
         IMAGEDEF: [],
         LAYOUT: []
+      },
+      header: {
+        variables: new Map()
       }
     }
     const libredwg = this.libredwg
+    this.convertHeader(data, db.header)
     const num_objects = libredwg.dwg_get_num_objects(data)
     const results = []
     for (let i = 0; i < num_objects; i++) {
@@ -108,6 +113,25 @@ export class LibreDwgConverter {
       }
     }
     return db
+  }
+
+  private convertHeader(data: Dwg_Data_Ptr, header: DwgHeader) {
+    const libredwg = this.libredwg
+    const variables = [
+      'CECOLOR',
+      'ANGBASE',
+      'ANGDIR',
+      'AUNITS',
+      'INSUNITS',
+      'PDMODE',
+      'PDSIZE'
+    ]
+    const headerVars = header.variables
+    variables.forEach(name => {
+      // TODO: For number variables are converted only
+      const value = libredwg.dwg_dynapi_header_value(data, name).data as number
+      headerVars.set(name, value)
+    })
   }
 
   private convertBlockRecord(
