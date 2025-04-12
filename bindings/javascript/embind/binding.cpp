@@ -170,6 +170,22 @@ emscripten::val dwg_ptr_to_point4d_array_wrapper(uintptr_t array_ptr, size_t siz
   return points_obj;
 }
 
+emscripten::val dwg_ptr_to_point4d_array_wrapper(uintptr_t array_ptr, size_t size) {
+  Dwg_SPLINE_control_point* array = reinterpret_cast<Dwg_SPLINE_control_point*>(array_ptr);
+
+  emscripten::val points_obj = emscripten::val::array();
+  for (int index = 0; index < size; ++index) {
+    emscripten::val point_obj = emscripten::val::object();
+    auto point = array[index];
+    point_obj.set("x", point.x);
+    point_obj.set("y", point.y);
+    point_obj.set("z", point.z);
+    point_obj.set("w", point.w);
+    points_obj.call<void>("push", point_obj);
+  }
+  return points_obj;
+}
+
 emscripten::val dwg_ptr_to_ltype_dash_array_wrapper(uintptr_t array_ptr, size_t size) {
   Dwg_LTYPE_dash* array = reinterpret_cast<Dwg_LTYPE_dash*>(array_ptr);
 
