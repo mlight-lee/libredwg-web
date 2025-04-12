@@ -1,13 +1,17 @@
 import {
   DwgAlignedDimensionEntity,
   DwgAngularDimensionEntity,
+  DwgArcEdge,
   DwgArcEntity,
   DwgAttachmentPoint,
   DwgBoundaryPath,
+  DwgBoundaryPathEdge,
   DwgCircleEntity,
   DwgDimensionEntityCommon,
   DwgDimensionTextLineSpacing,
   DwgDimensionType,
+  DwgEdgeBoundaryPath,
+  DwgEllipseEdge,
   DwgEllipseEntity,
   DwgEntity,
   DwgHatchAssociativity,
@@ -16,6 +20,7 @@ import {
   DwgHatchSolidFill,
   DwgHatchStyle,
   DwgInsertEntity,
+  DwgLineEdge,
   DwgLineEntity,
   DwgLWPolylineEntity,
   DwgLWPolylineVertex,
@@ -25,7 +30,9 @@ import {
   DwgPoint2D,
   DwgPoint3D,
   DwgPointEntity,
+  DwgPolylineBoundaryPath,
   DwgRadialDiameterDimensionEntity,
+  DwgSplineEdge,
   DwgSplineEntity,
   DwgTableCell,
   DwgTableEntity,
@@ -439,8 +446,7 @@ export class LibreEntityConverter {
   }
 
   private convertHatchBoundaryPaths(paths: Dwg_HATCH_Path[]) {
-    const converted: DwgBoundaryPath[] = []
-    paths.forEach(path => {
+    const converted: DwgBoundaryPath[] = paths.map(path => {
       const commonAttrs = {
         boundaryPathTypeFlag: path.flag
       }
@@ -459,7 +465,7 @@ export class LibreEntityConverter {
               bulge: vertex.bulge
             }
           })
-        }
+        } as DwgPolylineBoundaryPath
       } else {
         const edges = path.segs.map(seg => {
           if ((seg.curve_type = Dwg_Hatch_Edge_Type.Line)) {
@@ -467,7 +473,7 @@ export class LibreEntityConverter {
               type: seg.curve_type,
               start: seg.first_endpoint,
               end: seg.second_endpoint
-            }
+            } as DwgLineEdge
           } else if ((seg.curve_type = Dwg_Hatch_Edge_Type.CircularArc)) {
             return {
               type: seg.curve_type,
@@ -476,7 +482,7 @@ export class LibreEntityConverter {
               startAngle: seg.start_angle,
               endAngle: seg.end_angle,
               isCCW: seg.is_ccw
-            }
+            } as DwgArcEdge
           } else if ((seg.curve_type = Dwg_Hatch_Edge_Type.EllipticArc)) {
             return {
               type: seg.curve_type,
@@ -486,29 +492,29 @@ export class LibreEntityConverter {
               startAngle: seg.start_angle,
               endAngle: seg.end_angle,
               isCCW: seg.is_ccw
-            }
+            } as DwgEllipseEdge
           } else if ((seg.curve_type = Dwg_Hatch_Edge_Type.Spline)) {
             return {
               type: seg.curve_type,
               degree: seg.degree,
               isRational: seg.is_rational,
               isPeriodic: seg.is_periodic,
-              numberOfKnots: seg.num_control_points,
-              numberOfControlPoints: seg.control_points,
+              numberOfKnots: seg.num_knots,
+              numberOfControlPoints: seg.num_control_points,
               knots: seg.knots,
               controlPoints: seg.control_points,
               numberOfFitData: seg.num_fitpts,
               fitDatum: seg.fitpts,
               startTangent: seg.start_tangent,
               endTangent: seg.end_tangent
-            }
+            } as DwgSplineEdge
           }
         })
         return {
           ...commonAttrs,
           numberOfEdges: path.num_segs_or_paths,
           edges: edges
-        }
+        } as DwgEdgeBoundaryPath<DwgBoundaryPathEdge>
       }
     })
     return converted

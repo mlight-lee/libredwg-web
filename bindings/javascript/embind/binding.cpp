@@ -36,7 +36,22 @@ emscripten::val point2d_to_js_object(const dwg_point_2d* point) {
   return point_obj;
 }
 
+emscripten::val bitcode_2rd_to_js_object(const BITCODE_2RD* point) {
+  emscripten::val point_obj = emscripten::val::object();
+  point_obj.set("x", point->x);
+  point_obj.set("y", point->y);
+  return point_obj;
+}
+
 emscripten::val point3d_to_js_object(const dwg_point_3d* point) {
+  emscripten::val point_obj = emscripten::val::object();
+  point_obj.set("x", point->x);
+  point_obj.set("y", point->y);
+  point_obj.set("z", point->z);
+  return point_obj;
+}
+
+emscripten::val bitcode_3rd_to_js_object(const BITCODE_3RD* point) {
   emscripten::val point_obj = emscripten::val::object();
   point_obj.set("x", point->x);
   point_obj.set("y", point->y);
@@ -277,19 +292,19 @@ emscripten::val dwg_ptr_to_hatch_path_array_wrapper(uintptr_t array_ptr, size_t 
 
         if (curve_type == 1) {
           // Line
-          seg_obj.set("first_endpoint", seg.first_endpoint);
-          seg_obj.set("first_endpoint", seg.first_endpoint);
+          seg_obj.set("first_endpoint", bitcode_2rd_to_js_object(&seg.first_endpoint));
+          seg_obj.set("second_endpoint", bitcode_2rd_to_js_object(&seg.second_endpoint));
         } else if (curve_type == 2) {
           // Circular arc
-          seg_obj.set("center", point2d_to_js_object(reinterpret_cast<const dwg_point_2d*>(&seg.center)));
+          seg_obj.set("center", bitcode_2rd_to_js_object(&seg.center));
           seg_obj.set("radius", seg.radius);
           seg_obj.set("start_angle", seg.start_angle);
           seg_obj.set("end_angle", seg.end_angle);
           seg_obj.set("is_ccw", seg.is_ccw);
         } else if (curve_type == 3) {
           // Elliptic arc
-          seg_obj.set("center", point2d_to_js_object(reinterpret_cast<const dwg_point_2d*>(&seg.center)));
-          seg_obj.set("endpoint", point2d_to_js_object(reinterpret_cast<const dwg_point_2d*>(&seg.endpoint)));
+          seg_obj.set("center", bitcode_2rd_to_js_object(&seg.center));
+          seg_obj.set("endpoint", bitcode_2rd_to_js_object(&seg.endpoint));
           seg_obj.set("minor_major_ratio", seg.minor_major_ratio);
           seg_obj.set("start_angle", seg.start_angle);
           seg_obj.set("end_angle", seg.end_angle);
@@ -324,11 +339,12 @@ emscripten::val dwg_ptr_to_hatch_path_array_wrapper(uintptr_t array_ptr, size_t 
           seg_obj.set("num_fitpts", num_fitpts);
           seg_obj.set("fitpts", dwg_ptr_to_point2d_array_wrapper(reinterpret_cast<uintptr_t>(seg.fitpts), num_fitpts));
         }
-        seg_obj.set("start_tangent", point2d_to_js_object(reinterpret_cast<const dwg_point_2d*>(&seg.start_tangent)));
-        seg_obj.set("end_tangent", point2d_to_js_object(reinterpret_cast<const dwg_point_2d*>(&seg.end_tangent)));
+        seg_obj.set("start_tangent", bitcode_2rd_to_js_object(&seg.start_tangent));
+        seg_obj.set("end_tangent", bitcode_2rd_to_js_object(&seg.end_tangent));
 
         segs.call<void>("push", seg_obj);
       }
+      path_obj.set("segs", segs);
     }
 
     // Convert polyline path
@@ -340,12 +356,14 @@ emscripten::val dwg_ptr_to_hatch_path_array_wrapper(uintptr_t array_ptr, size_t 
       for (int j = 0; j < num_segs_or_paths; ++j) {
         auto polyline_path = path.polyline_paths[j];
         emscripten::val polyline_path_obj = emscripten::val::object();
-        polyline_path_obj.set("point", point2d_to_js_object(reinterpret_cast<const dwg_point_2d*>(&polyline_path.point)));
+        polyline_path_obj.set("point", bitcode_2rd_to_js_object(&polyline_path.point));
         if (bulges_present) {
           polyline_path_obj.set("bulge", polyline_path.bulge);
         }
         polyline_paths.call<void>("push", polyline_path_obj);
       }
+
+      path_obj.set("polyline_paths", polyline_paths);
     }
 
     pathes.call<void>("push", path_obj);

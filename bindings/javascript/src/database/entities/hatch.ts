@@ -107,7 +107,6 @@ export interface DwgEllipseEdge extends DwgBoundaryPathEdgeCommon {
 
 export interface DwgSplineEdge extends DwgBoundaryPathEdgeCommon {
   degree: number
-  splineFlag: number
   isPeriodic?: boolean
   numberOfKnots: number
   numberOfControlPoints: number
