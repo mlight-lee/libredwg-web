@@ -538,12 +538,13 @@ export class LibreEntityConverter {
         const block_header_tio =
           libredwg.dwg_object_to_object_tio(block_header_obj)
         if (block_header_tio) {
-          name = libredwg.dwg_dynapi_entity_value(block_header_tio, 'name')
-            .data as string
+          name =
+            libredwg.dwg_entity_block_header_get_block(block_header_tio).name
         }
       }
     }
     if (name === '') {
+      /* pre-R2.0 */
       name = libredwg.dwg_dynapi_entity_value(entity, 'block_name')
         .data as string
     }

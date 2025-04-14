@@ -143,7 +143,7 @@ export class LibreDwgConverter {
 
     // The BLOCK_HEADER has only the abbrevated name, but we want "*D30" instead of "*D".
     // So get full name from BLOCK entity.
-    const block = this.getBlockByBlockHeader(item)
+    const block = libredwg.dwg_entity_block_header_get_block(item)
     commonAttrs.name = block.name
 
     const insertionUnits = libredwg.dwg_dynapi_entity_value(
@@ -170,25 +170,6 @@ export class LibreDwgConverter {
     }
   }
 
-  private getBlockByBlockHeader(
-    blockHeader: Dwg_Object_Object_Ptr
-  ) {
-    const libredwg = this.libredwg
-    const block_ref = libredwg.dwg_dynapi_entity_value(
-      blockHeader,
-      'block_entity'
-    ).data as number
-    const block_obj = libredwg.dwg_ref_get_object(block_ref)
-    const block_tio = libredwg.dwg_object_to_entity_tio(block_obj)
-    const name = libredwg.dwg_dynapi_entity_value(block_tio, 'name').data as string
-    const base_pt = libredwg.dwg_dynapi_entity_value(block_tio, 'base_pt')
-      .data as DwgPoint2D
-    return {
-      name,
-      base_pt // preR13 only
-    }
-  }
-
   private convertEntities(
     obj: Dwg_Object_Ptr,
     ownerHandle: number
@@ -200,14 +181,7 @@ export class LibreDwgConverter {
     while (next) {
       const entity = converter.convert(next)
       if (entity) {
-        if (entity.ownerBlockRecordSoftId != ownerHandle) {
-          console.log(
-            'ownerBlockRecordSoftId/ownerHandle: ',
-            entity.ownerBlockRecordSoftId,
-            ownerHandle
-          )
-        }
-        // entity.ownerBlockRecordSoftId = ownerHandle
+        entity.ownerBlockRecordSoftId = ownerHandle
         entities.push(entity)
       }
       next = libredwg.get_next_owned_entity(obj, next)
