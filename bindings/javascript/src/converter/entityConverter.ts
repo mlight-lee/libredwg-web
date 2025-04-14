@@ -446,7 +446,9 @@ export class LibreEntityConverter {
   }
 
   private convertHatchBoundaryPaths(paths: Dwg_HATCH_Path[]) {
-    const converted: DwgBoundaryPath[] = paths.map(path => {
+    const converted: DwgBoundaryPath[] = paths
+    .filter(path => path.num_segs_or_paths > 0)
+    .map(path => {
       const commonAttrs = {
         boundaryPathTypeFlag: path.flag
       }
