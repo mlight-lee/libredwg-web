@@ -666,13 +666,30 @@ export class LibreDwg {
   }
 
   /**
+   * Returns block name of one Dwg_Entity_* instance with one block field.
+   * @group Dwg_Entity_* Methods
+   * @param ptr Pointer to one Dwg_Entity_* instance  with one block field
+   * @param field Field name of the block.
+   * @returns Returns block name of one Dwg_Entity_* instance.
+   */
+  dwg_entity_get_block_name(ptr: Dwg_Object_Entity_TIO_Ptr, field: string): string {
+    const wasmInstance = this.wasmInstance
+    const block_header_ref = wasmInstance.dwg_dynapi_entity_value(ptr, field)
+      .data as number
+    const block_header_obj = wasmInstance.dwg_ref_get_object(block_header_ref)
+    const block_header_tio = wasmInstance.dwg_object_to_object_tio(block_header_obj)
+    const block = this.dwg_entity_block_header_get_block(block_header_tio)
+    return block.name
+  }
+
+  /**
    * Returns block entity pointed by the specified block header.
    * @group Dwg_Entity_BLOCK_HEADER Methods
    * @param ptr Pointer to one Dwg_Entity_BLOCK_HEADER instance.
    * @returns Returns block entity pointed by the specified block header.
    */
   dwg_entity_block_header_get_block(
-    ptr: Dwg_Object_Entity_Ptr
+    ptr: Dwg_Object_BLOCK_HEADER_Ptr
   ): Dwg_Entity_BLOCK {
     const wasmInstance = this.wasmInstance
     const block_ref = wasmInstance.dwg_dynapi_entity_value(ptr, 'block_entity')

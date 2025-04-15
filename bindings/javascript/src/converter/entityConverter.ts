@@ -1068,6 +1068,7 @@ export class LibreEntityConverter {
     const libredwg = this.libredwg
     const version = libredwg.dwg_dynapi_entity_value(entity, 'class_version')
       .data as number
+    const name = libredwg.dwg_entity_get_block_name(entity, 'block')
     const definitionPoint = libredwg.dwg_dynapi_entity_value(entity, 'def_pt')
       .data as DwgPoint3D
     const textPoint = libredwg.dwg_dynapi_entity_value(entity, 'text_midpt')
@@ -1107,7 +1108,7 @@ export class LibreEntityConverter {
     return {
       type: 'DIMENSION',
       version: version,
-      name: '', // TODO: Set the correct value
+      name: name,
       definitionPoint: definitionPoint,
       textPoint: textPoint,
       dimensionType: dimensionType as DwgDimensionType,

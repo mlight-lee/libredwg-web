@@ -82,6 +82,20 @@ const dwg = libredwg.dwg_read_data(fileContent, Dwg_File_Type.DWG);
 const db = this.libredwg.convert(dwg);
 ```
 
+## Interfaces
+
+There are two kinds of interfaces defined to access dwg/dxf drawing data. 
+
+### Interfaces with prifix 'Dwg'
+
+Those interfaces are much more easier to use with better data structure. It is quite similar to interfaces defined in project [@mlightcad/dxf-json](https://github.com/mlight-lee/dxf-json). Those interfaces describe most of commonly used objects in the dwg/dxf drawing.
+
+### Interfaces with prefix 'Dwg_'
+
+Those interfaces are JavaScript version of `structs` defined in libredwg C++ code. Only a few `structs` have the correponding JavaScript interface. Most of them are defined to make it easier to convert libredwg data structure to [DwgDatabase](./src/types/database.ts).
+
+So it is recommend to use interfaces with prefix 'Dwg'.
+
 ## Demo App
 
 One demo app is provided in folder [test](./test/). You can run the following command to launch it.

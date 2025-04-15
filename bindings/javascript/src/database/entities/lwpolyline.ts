@@ -4,7 +4,8 @@ import { DwgEntity } from './entity'
 export interface DwgLWPolylineEntity extends DwgEntity {
   type: 'LWPOLYLINE'
   /* 
-   * DXF 70
+   * DXF group code: 70
+   *
    * Polyline flag (bit-coded); default is 0:
    * - 1 extrusion
    * - 2 thickness
