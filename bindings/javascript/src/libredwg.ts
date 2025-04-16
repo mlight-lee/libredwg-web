@@ -666,7 +666,9 @@ export class LibreDwg {
   }
 
   /**
-   * Returns block name of one Dwg_Entity_* instance with one block field.
+   * Returns block name of one Dwg_Entity_* instance with one block field. For example,
+   * dimension entities have one 'block' field which represents the block that contains
+   * the entities that make up the dimension picture.
    * @group Dwg_Entity_* Methods
    * @param ptr Pointer to one Dwg_Entity_* instance  with one block field
    * @param field Field name of the block.
@@ -680,6 +682,22 @@ export class LibreDwg {
     const block_header_tio = wasmInstance.dwg_object_to_object_tio(block_header_obj)
     const block = this.dwg_entity_block_header_get_block(block_header_tio)
     return block.name
+  }
+
+  /**
+   * Returns dimension style name of one Dwg_Entity_DIMENSION_* instance.
+   * @group Dwg_Entity_DIMENSION_* Methods
+   * @param ptr Pointer to one Dwg_Entity_DIMENSION_* instance
+   * @returns Returns dimension style name of one Dwg_Entity_DIMENSION_* instance.
+   */
+  dwg_entity_dimension_get_style_name(ptr: Dwg_Object_Entity_TIO_Ptr): string {
+    const wasmInstance = this.wasmInstance
+    const dimstyle_ref = wasmInstance.dwg_dynapi_entity_value(ptr, 'dimstyle')
+      .data as number
+    const dimstyle_obj = wasmInstance.dwg_ref_get_object(dimstyle_ref)
+    const dimstyle_tio = wasmInstance.dwg_object_to_object_tio(dimstyle_obj)
+    const dimstyle_name = this.dwg_dynapi_entity_value(dimstyle_tio, 'name').data as string
+    return dimstyle_name
   }
 
   /**
