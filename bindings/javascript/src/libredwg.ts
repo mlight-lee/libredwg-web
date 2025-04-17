@@ -758,6 +758,29 @@ export class LibreDwg {
     return this.dwg_entity_mtext_get_style_name(ptr)
   }
 
+  /**
+   * Returns the number of points in Dwg_Entity_POLYLINE_2D.
+   * @group Dwg_Entity_POLYLINE_2D Methods
+   * @param ptr Pointer to one Dwg_Object (not Dwg_Entity_POLYLINE_2D) instance.
+   * @returns Returns the number of points in one Dwg_Entity_POLYLINE_2D.
+   */
+  dwg_entity_polyline_2d_get_numpoints(ptr: Dwg_Object_Ptr): number {
+    const wasmInstance = this.wasmInstance
+    return wasmInstance.dwg_entity_polyline_2d_get_numpoints(ptr).data as number
+  }
+
+  /**
+   * Returns points in Dwg_Entity_POLYLINE_2D.
+   * @group Dwg_Entity_POLYLINE_2D Methods
+   * @param ptr Pointer to one Dwg_Object (not Dwg_Entity_POLYLINE_2D) instance.
+   * @returns Returns points in one Dwg_Entity_POLYLINE_2D.
+   */
+  dwg_entity_polyline_2d_get_points(ptr: Dwg_Object_Ptr): DwgPoint2D[] {
+    const wasmInstance = this.wasmInstance
+    return wasmInstance.dwg_entity_polyline_2d_get_points(ptr)
+      .data as DwgPoint2D[]
+  }
+
   static createByWasmInstance(wasmInstance: MainModule): LibreDwgEx {
     return this.instance == null
       ? (new LibreDwg(wasmInstance) as LibreDwgEx)

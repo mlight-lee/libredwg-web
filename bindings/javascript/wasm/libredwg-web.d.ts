@@ -383,6 +383,10 @@ interface WasmModule {
   __ZN10emscripten8internal7InvokerINS0_3rvp11default_tagEbJmRKNSt3__212basic_stringIcNS4_11char_traitsIcEENS4_9allocatorIcEEEEmbEE6invokeEPFbmSC_mbEmPNS0_11BindingTypeISA_vEUt_Emb(_0: number, _1: number, _2: number, _3: number, _4: number): number;
   __ZN10emscripten8internal7InvokerINS0_3rvp11default_tagEbJmRKNSt3__212basic_stringIcNS4_11char_traitsIcEENS4_9allocatorIcEEEESC_mbEE6invokeEPFbmSC_SC_mbEmPNS0_11BindingTypeISA_vEUt_ESJ_mb(_0: number, _1: number, _2: number, _3: number, _4: number, _5: number): number;
   __ZN10emscripten8internal7InvokerINS0_3rvp11default_tagENSt3__212basic_stringIcNS4_11char_traitsIcEENS4_9allocatorIcEEEEJmmmEE6invokeEPFSA_mmmEmmm(_0: number, _1: number, _2: number, _3: number): number;
+  __Z44dwg_entity_polyline_2d_get_numpoints_wrapperm(_0: number, _1: number): void;
+  _dwg_object_polyline_2d_get_numpoints(_0: number, _1: number): number;
+  __Z41dwg_entity_polyline_2d_get_points_wrapperm(_0: number, _1: number): void;
+  _dwg_object_polyline_2d_get_points(_0: number, _1: number): number;
   __Z21dwg_read_file_wrapperRKNSt3__212basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE(_0: number, _1: number): void;
   _dwg_read_file(_0: number, _1: number): number;
   __Z28dwg_find_tablehandle_wrappermRKNSt3__212basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEES7_(_0: number, _1: number, _2: number): number;
@@ -1963,8 +1967,6 @@ interface WasmModule {
   _dwg_set_ENTITY_common_utf8text(_0: number, _1: number, _2: number): number;
   _dwg_get_OBJECT_common_utf8text(_0: number, _1: number, _2: number, _3: number): number;
   _dwg_set_OBJECT_common_utf8text(_0: number, _1: number, _2: number): number;
-  _dwg_object_polyline_2d_get_numpoints(_0: number, _1: number): number;
-  _dwg_object_polyline_2d_get_points(_0: number, _1: number): number;
   _dwg_object_polyline_3d_get_numpoints(_0: number, _1: number): number;
   _dwg_object_polyline_3d_get_points(_0: number, _1: number): number;
   _dwg_ent_lwpline_get_bulges(_0: number, _1: number): number;
@@ -2532,6 +2534,8 @@ interface EmbindModule {
   dwg_dynapi_entity_value(_0: number, _1: EmbindString): any;
   dwg_dynapi_common_value(_0: number, _1: EmbindString): any;
   dwg_dynapi_subclass_value(_0: number, _1: EmbindString, _2: EmbindString): any;
+  dwg_entity_polyline_2d_get_numpoints(_0: number): any;
+  dwg_entity_polyline_2d_get_points(_0: number): any;
   dwg_read_file(_0: EmbindString): any;
 }
 

@@ -32,14 +32,17 @@ import {
   DwgPoint3D,
   DwgPointEntity,
   DwgPolylineBoundaryPath,
+  DwgPolylineEntity,
   DwgRadialDiameterDimensionEntity,
+  DwgSmoothType,
   DwgSplineEdge,
   DwgSplineEntity,
   DwgTableCell,
   DwgTableEntity,
   DwgTextEntity,
   DwgTextHorizontalAlign,
-  DwgTextVerticalAlign
+  DwgTextVerticalAlign,
+  DwgVertexEntity
 } from '../database'
 import { LibreDwgEx } from '../libredwg'
 import {
@@ -106,6 +109,8 @@ export class LibreEntityConverter {
         return this.convertMText(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_POINT) {
         return this.convertPoint(entity_tio, commonAttrs)
+      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_POLYLINE_2D) {
+        return this.convertPolyline2d(entity_tio, commonAttrs, object_ptr)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_SPLINE) {
         return this.convertSpline(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_TABLE) {
@@ -809,6 +814,56 @@ export class LibreEntityConverter {
       thickness: thickness,
       extrusionDirection: extrusionDirection,
       angle: angle
+    }
+  }
+
+  private convertPolyline2d(
+    entity: Dwg_Object_Entity_Ptr,
+    commonAttrs: DwgCommonAttributes,
+    object: Dwg_Object_Ptr
+  ): DwgPolylineEntity {
+    const libredwg = this.libredwg
+    const flag = libredwg.dwg_dynapi_entity_value(entity, 'flag').data as number
+    const startWidth = libredwg.dwg_dynapi_entity_value(entity, 'start_width')
+      .data as number
+    const endWidth = libredwg.dwg_dynapi_entity_value(entity, 'end_width')
+      .data as number
+    const elevation = libredwg.dwg_dynapi_entity_value(entity, 'elevation')
+      .data as number
+    const thickness = libredwg.dwg_dynapi_entity_value(entity, 'thickness')
+      .data as number
+    const extrusionDirection = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'extrusion'
+    ).data as DwgPoint3D
+
+    const vertices = libredwg.dwg_entity_polyline_2d_get_points(object)
+    return {
+      type: 'POLYLINE',
+      ...commonAttrs,
+      flag: flag,
+      startWidth: startWidth,
+      endWidth: endWidth,
+      elevation: elevation,
+      thickness: thickness,
+      extrusionDirection: extrusionDirection,
+      vertices: vertices.map(vertex => {
+        return {
+          x: vertex.x,
+          y: vertex.y,
+          z: 0,
+          startWidth: 0,
+          endWidth: 0,
+          bulge: 0,
+          flag: 0,
+          tangentDirection: 0
+        } as unknown as DwgVertexEntity
+      }),
+      meshMVertexCount: 0,
+      meshNVertexCount: 0,
+      surfaceMDensity: 0,
+      surfaceNDensity: 0,
+      smoothType: DwgSmoothType.NONE
     }
   }
 
