@@ -6,6 +6,7 @@ import {
   DwgAttachmentPoint,
   DwgBoundaryPath,
   DwgBoundaryPathEdge,
+  DwgBoundaryPathEdgeType,
   DwgCircleEntity,
   DwgDimensionEntityCommon,
   DwgDimensionTextLineSpacing,
@@ -78,7 +79,8 @@ export class LibreEntityConverter {
         return this.convertArc(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_CIRCLE) {
         return this.convertCircle(entity_tio, commonAttrs)
-      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_DIMENSION_ALIGNED ||
+      } else if (
+        fixedtype == Dwg_Object_Type.DWG_TYPE_DIMENSION_ALIGNED ||
         fixedtype == Dwg_Object_Type.DWG_TYPE_DIMENSION_LINEAR
       ) {
         return this.convertAlignedDimension(entity_tio, commonAttrs)
@@ -193,9 +195,9 @@ export class LibreEntityConverter {
       'xline2_pt'
     ).data as DwgPoint3D
     const rotationAngle = libredwg.dwg_dynapi_entity_value(
-        entity,
-        'ins_rotation'
-      ).data as number | undefined
+      entity,
+      'ins_rotation'
+    ).data as number | undefined
     const obliqueAngle = libredwg.dwg_dynapi_entity_value(
       entity,
       'oblique_angle'
@@ -448,78 +450,78 @@ export class LibreEntityConverter {
 
   private convertHatchBoundaryPaths(paths: Dwg_HATCH_Path[]) {
     const converted: DwgBoundaryPath[] = paths
-    .filter(path => path.num_segs_or_paths > 0)
-    .map(path => {
-      const commonAttrs = {
-        boundaryPathTypeFlag: path.flag
-      }
+      .filter(path => path.num_segs_or_paths > 0)
+      .map(path => {
+        const commonAttrs = {
+          boundaryPathTypeFlag: path.flag
+        }
 
-      // Check whether it is a polyline
-      if (path.flag & 0x02) {
-        return {
-          ...commonAttrs,
-          hasBulge: path.bulges_present,
-          isClosed: path.closed,
-          numberOfVertices: path.num_segs_or_paths,
-          vertices: path.polyline_paths.map(vertex => {
-            return {
-              x: vertex.point.x,
-              y: vertex.point.y,
-              bulge: vertex.bulge
+        // Check whether it is a polyline
+        if (path.flag & 0x02) {
+          return {
+            ...commonAttrs,
+            hasBulge: path.bulges_present,
+            isClosed: path.closed,
+            numberOfVertices: path.num_segs_or_paths,
+            vertices: path.polyline_paths.map(vertex => {
+              return {
+                x: vertex.point.x,
+                y: vertex.point.y,
+                bulge: vertex.bulge
+              }
+            })
+          } as DwgPolylineBoundaryPath
+        } else {
+          const edges = path.segs.map(seg => {
+            if (seg.curve_type == Dwg_Hatch_Edge_Type.Line) {
+              return {
+                type: DwgBoundaryPathEdgeType.Line,
+                start: seg.first_endpoint,
+                end: seg.second_endpoint
+              } as DwgLineEdge
+            } else if (seg.curve_type == Dwg_Hatch_Edge_Type.CircularArc) {
+              return {
+                type: DwgBoundaryPathEdgeType.Circular,
+                center: seg.center,
+                radius: seg.radius,
+                startAngle: seg.start_angle,
+                endAngle: seg.end_angle,
+                isCCW: seg.is_ccw
+              } as DwgArcEdge
+            } else if (seg.curve_type == Dwg_Hatch_Edge_Type.EllipticArc) {
+              return {
+                type: DwgBoundaryPathEdgeType.Elliptic,
+                center: seg.center,
+                end: seg.endpoint,
+                lengthOfMinorAxis: seg.minor_major_ratio,
+                startAngle: seg.start_angle,
+                endAngle: seg.end_angle,
+                isCCW: seg.is_ccw
+              } as DwgEllipseEdge
+            } else if (seg.curve_type == Dwg_Hatch_Edge_Type.Spline) {
+              return {
+                type: DwgBoundaryPathEdgeType.Spline,
+                degree: seg.degree,
+                isRational: seg.is_rational,
+                isPeriodic: seg.is_periodic,
+                numberOfKnots: seg.num_knots,
+                numberOfControlPoints: seg.num_control_points,
+                knots: seg.knots,
+                controlPoints: seg.control_points,
+                numberOfFitData: seg.num_fitpts,
+                fitDatum: seg.fitpts,
+                startTangent: seg.start_tangent,
+                endTangent: seg.end_tangent
+              } as DwgSplineEdge
             }
           })
-        } as DwgPolylineBoundaryPath
-      } else {
-        const edges = path.segs.map(seg => {
-          if ((seg.curve_type = Dwg_Hatch_Edge_Type.Line)) {
-            return {
-              type: seg.curve_type,
-              start: seg.first_endpoint,
-              end: seg.second_endpoint
-            } as DwgLineEdge
-          } else if ((seg.curve_type = Dwg_Hatch_Edge_Type.CircularArc)) {
-            return {
-              type: seg.curve_type,
-              center: seg.center,
-              radius: seg.radius,
-              startAngle: seg.start_angle,
-              endAngle: seg.end_angle,
-              isCCW: seg.is_ccw
-            } as DwgArcEdge
-          } else if ((seg.curve_type = Dwg_Hatch_Edge_Type.EllipticArc)) {
-            return {
-              type: seg.curve_type,
-              center: seg.center,
-              end: seg.endpoint,
-              lengthOfMinorAxis: seg.minor_major_ratio,
-              startAngle: seg.start_angle,
-              endAngle: seg.end_angle,
-              isCCW: seg.is_ccw
-            } as DwgEllipseEdge
-          } else if ((seg.curve_type = Dwg_Hatch_Edge_Type.Spline)) {
-            return {
-              type: seg.curve_type,
-              degree: seg.degree,
-              isRational: seg.is_rational,
-              isPeriodic: seg.is_periodic,
-              numberOfKnots: seg.num_knots,
-              numberOfControlPoints: seg.num_control_points,
-              knots: seg.knots,
-              controlPoints: seg.control_points,
-              numberOfFitData: seg.num_fitpts,
-              fitDatum: seg.fitpts,
-              startTangent: seg.start_tangent,
-              endTangent: seg.end_tangent
-            } as DwgSplineEdge
-          }
-        })
-        return {
-          ...commonAttrs,
-          numberOfEdges: path.num_segs_or_paths,
-          edges: edges
-        } as DwgEdgeBoundaryPath<DwgBoundaryPathEdge>
-      }
-    })
+          return {
+            ...commonAttrs,
+            numberOfEdges: path.num_segs_or_paths,
+            edges: edges
+          } as DwgEdgeBoundaryPath<DwgBoundaryPathEdge>
+        }
+      })
     return converted
   }
 
@@ -693,6 +695,7 @@ export class LibreEntityConverter {
       'flow_dir'
     ).data as number
     const text = libredwg.dwg_dynapi_entity_value(entity, 'text').data as string
+    const styleName = libredwg.dwg_entity_mtext_get_style_name(entity)
     const extrusionDirection = libredwg.dwg_dynapi_entity_value(
       entity,
       'extrusion'
@@ -760,7 +763,7 @@ export class LibreEntityConverter {
       attachmentPoint: attachmentPoint as DwgAttachmentPoint,
       drawingDirection: drawingDirection as DwgMTextDrawingDirection,
       text: text,
-      styleName: '', // TODO: Set correct value
+      styleName: styleName,
       extrusionDirection: extrusionDirection,
       direction: direction,
       rotation: 0, // TODO: Didn't find the corresponding field in libredwg
@@ -1030,6 +1033,7 @@ export class LibreEntityConverter {
       entity,
       'oblique_angle'
     ).data as number
+    const styleName = libredwg.dwg_entity_text_get_style_name(entity)
     // const style_ptr = libredwg.dwg_dynapi_entity_value(entity, 'style').data as number
     const generationFlag = libredwg.dwg_dynapi_entity_value(
       entity,
@@ -1055,7 +1059,7 @@ export class LibreEntityConverter {
       rotation: rotation,
       xScale: xScale,
       obliqueAngle: obliqueAngle,
-      styleName: '', // TODO: Set the correct value
+      styleName: styleName,
       generationFlag: generationFlag,
       halign: halign as DwgTextHorizontalAlign,
       valign: valign as DwgTextVerticalAlign,

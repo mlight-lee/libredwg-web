@@ -247,7 +247,9 @@ interface WasmModule {
   __ZdlPv(_0: number): void;
   __ZN10emscripten3val3setIA10_cNSt3__212basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEEEEvRKT_RKT0_(_0: number, _1: number, _2: number): void;
   __Z20point2d_to_js_objectPK12dwg_point_2d(_0: number, _1: number): void;
+  __Z24bitcode_2rd_to_js_objectPK16_dwg_bitcode_2rd(_0: number, _1: number): void;
   __Z20point3d_to_js_objectPK12dwg_point_3d(_0: number, _1: number): void;
+  __Z24bitcode_3rd_to_js_objectPK16_dwg_bitcode_3rd(_0: number, _1: number): void;
   __Z20point4d_to_js_objectPK25_dwg_SPLINE_control_point(_0: number, _1: number): void;
   __Z18dwg_handle_wrapperm(_0: number, _1: number): void;
   __Z22dwg_object_ref_wrapperm(_0: number, _1: number): void;
