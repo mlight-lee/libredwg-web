@@ -1,25 +1,9 @@
 import { DwgPoint2D, DwgPoint3D } from '../common'
 import { DwgEntity } from './entity'
+import { DwgImageClipMode, DwgImageClippingBoundaryType, DwgImageFlags } from './image'
 
-export declare enum DwgImageFlags {
-  ShowImage = 1,
-  ShowImageWhenNotAlignedWithScreen = 2,
-  UseClippingBoundary = 4,
-  TransparencyIsOn = 8
-}
-
-export declare enum DwgImageClippingBoundaryType {
-  Rectangular = 1,
-  Polygonal = 2
-}
-
-export declare enum DwgImageClipMode {
-  Outside = 0,
-  Inside = 1
-}
-
-export interface DwgImageEntity extends DwgEntity {
-  type: 'IMAGE'
+export interface DwgWipeoutEntity  extends DwgEntity {
+  type: 'WIPEOUT'
   version: number
   position: DwgPoint3D
   uPixel: DwgPoint3D
@@ -37,3 +21,4 @@ export interface DwgImageEntity extends DwgEntity {
   clippingBoundaryPath: DwgPoint3D[]
   clipMode: DwgImageClipMode
 }
+

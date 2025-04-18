@@ -20,6 +20,9 @@ import {
   DwgHatchPatternType,
   DwgHatchSolidFill,
   DwgHatchStyle,
+  DwgImageClippingBoundaryType,
+  DwgImageEntity,
+  DwgImageFlags,
   DwgInsertEntity,
   DwgLineEdge,
   DwgLineEntity,
@@ -44,6 +47,7 @@ import {
   DwgTextHorizontalAlign,
   DwgTextVerticalAlign,
   DwgVertexEntity,
+  DwgWipeoutEntity,
   DwgXlineEntity
 } from '../database'
 import { LibreDwgEx } from '../libredwg'
@@ -101,6 +105,8 @@ export class LibreEntityConverter {
         return this.convertEllise(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_HATCH) {
         return this.convertHatch(entity_tio, commonAttrs)
+      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_IMAGE) {
+        return this.convertImage(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_INSERT) {
         return this.convertInsert(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_LINE) {
@@ -121,6 +127,8 @@ export class LibreEntityConverter {
         return this.convertTable(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_TEXT) {
         return this.convertText(entity_tio, commonAttrs)
+      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_WIPEOUT) {
+        return this.convertWipeout(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_XLINE) {
         return this.convertXline(entity_tio, commonAttrs)
       }
@@ -534,6 +542,80 @@ export class LibreEntityConverter {
         }
       })
     return converted
+  }
+
+  private convertImage(
+    entity: Dwg_Object_Entity_Ptr,
+    commonAttrs: DwgCommonAttributes
+  ): DwgImageEntity {
+    const libredwg = this.libredwg
+    const version = libredwg.dwg_dynapi_entity_value(entity, 'class_version')
+      .data as number
+    const position = libredwg.dwg_dynapi_entity_value(entity, 'pt0')
+      .data as DwgPoint3D
+    const uPixel = libredwg.dwg_dynapi_entity_value(entity, 'uvec')
+      .data as DwgPoint3D
+    const vPixel = libredwg.dwg_dynapi_entity_value(entity, 'vvec')
+      .data as DwgPoint3D
+    const imageSize = libredwg.dwg_dynapi_entity_value(entity, 'image_size')
+      .data as DwgPoint2D
+    const flags = libredwg.dwg_dynapi_entity_value(entity, 'display_props')
+      .data as number
+    const clipping = libredwg.dwg_dynapi_entity_value(entity, 'clipping')
+      .data as number
+    const brightness = libredwg.dwg_dynapi_entity_value(entity, 'brightness')
+      .data as number
+    const contrast = libredwg.dwg_dynapi_entity_value(entity, 'contrast')
+      .data as number
+    const fade = libredwg.dwg_dynapi_entity_value(entity, 'fade').data as number
+    const clipMode = libredwg.dwg_dynapi_entity_value(entity, 'clip_mode')
+      .data as number
+    const clippingBoundaryType = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'clip_boundary_type'
+    ).data as number
+    const countBoundaryPoints = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'num_clip_verts'
+    ).data as number
+    const clip_verts = libredwg.dwg_dynapi_entity_value(entity, 'clip_verts')
+      .data as number
+    const clippingBoundaryPath = libredwg.dwg_ptr_to_point3d_array(
+      clip_verts,
+      countBoundaryPoints
+    )
+
+    const imagedef_ref = libredwg.dwg_dynapi_entity_value(entity, 'imagedef')
+      .data as number
+    const imageDefHandle = libredwg.dwg_ref_get_absref(imagedef_ref)
+    const imagedefreactor_ref = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'imagedefreactor'
+    ).data as number
+    const imageDefReactorHandle =
+      libredwg.dwg_ref_get_absref(imagedefreactor_ref)
+
+    return {
+      type: 'IMAGE',
+      ...commonAttrs,
+      version: version,
+      position: position,
+      uPixel: uPixel,
+      vPixel: vPixel,
+      imageSize: imageSize,
+      imageDefHandle: imageDefHandle,
+      flags: flags as DwgImageFlags,
+      clipping: clipping,
+      brightness: brightness,
+      contrast: contrast,
+      fade: fade,
+      imageDefReactorHandle: imageDefReactorHandle,
+      clippingBoundaryType:
+        clippingBoundaryType as DwgImageClippingBoundaryType,
+      countBoundaryPoints: countBoundaryPoints,
+      clippingBoundaryPath: clippingBoundaryPath,
+      clipMode: clipMode
+    }
   }
 
   private convertInsert(
@@ -1142,6 +1224,80 @@ export class LibreEntityConverter {
       halign: halign as DwgTextHorizontalAlign,
       valign: valign as DwgTextVerticalAlign,
       extrusionDirection: extrusionDirection
+    }
+  }
+
+  private convertWipeout(
+    entity: Dwg_Object_Entity_Ptr,
+    commonAttrs: DwgCommonAttributes
+  ): DwgWipeoutEntity {
+    const libredwg = this.libredwg
+    const version = libredwg.dwg_dynapi_entity_value(entity, 'class_version')
+      .data as number
+    const position = libredwg.dwg_dynapi_entity_value(entity, 'pt0')
+      .data as DwgPoint3D
+    const uPixel = libredwg.dwg_dynapi_entity_value(entity, 'uvec')
+      .data as DwgPoint3D
+    const vPixel = libredwg.dwg_dynapi_entity_value(entity, 'vvec')
+      .data as DwgPoint3D
+    const imageSize = libredwg.dwg_dynapi_entity_value(entity, 'image_size')
+      .data as DwgPoint2D
+    const flags = libredwg.dwg_dynapi_entity_value(entity, 'display_props')
+      .data as number
+    const clipping = libredwg.dwg_dynapi_entity_value(entity, 'clipping')
+      .data as number
+    const brightness = libredwg.dwg_dynapi_entity_value(entity, 'brightness')
+      .data as number
+    const contrast = libredwg.dwg_dynapi_entity_value(entity, 'contrast')
+      .data as number
+    const fade = libredwg.dwg_dynapi_entity_value(entity, 'fade').data as number
+    const clipMode = libredwg.dwg_dynapi_entity_value(entity, 'clip_mode')
+      .data as number
+    const clippingBoundaryType = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'clip_boundary_type'
+    ).data as number
+    const countBoundaryPoints = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'num_clip_verts'
+    ).data as number
+    const clip_verts = libredwg.dwg_dynapi_entity_value(entity, 'clip_verts')
+      .data as number
+    const clippingBoundaryPath = libredwg.dwg_ptr_to_point3d_array(
+      clip_verts,
+      countBoundaryPoints
+    )
+
+    const imagedef_ref = libredwg.dwg_dynapi_entity_value(entity, 'imagedef')
+      .data as number
+    const imageDefHandle = libredwg.dwg_ref_get_absref(imagedef_ref)
+    const imagedefreactor_ref = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'imagedefreactor'
+    ).data as number
+    const imageDefReactorHandle =
+      libredwg.dwg_ref_get_absref(imagedefreactor_ref)
+
+    return {
+      type: 'WIPEOUT',
+      ...commonAttrs,
+      version: version,
+      position: position,
+      uPixel: uPixel,
+      vPixel: vPixel,
+      imageSize: imageSize,
+      imageDefHandle: imageDefHandle,
+      flags: flags as DwgImageFlags,
+      clipping: clipping,
+      brightness: brightness,
+      contrast: contrast,
+      fade: fade,
+      imageDefReactorHandle: imageDefReactorHandle,
+      clippingBoundaryType:
+        clippingBoundaryType as DwgImageClippingBoundaryType,
+      countBoundaryPoints: countBoundaryPoints,
+      clippingBoundaryPath: clippingBoundaryPath,
+      clipMode: clipMode
     }
   }
 
