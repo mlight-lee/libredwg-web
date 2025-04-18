@@ -837,7 +837,7 @@ export class LibreEntityConverter {
       'extrusion'
     ).data as DwgPoint3D
 
-    const vertices = libredwg.dwg_entity_polyline_2d_get_points(object)
+    const vertices = libredwg.dwg_entity_polyline_2d_get_vertices(object)
     return {
       type: 'POLYLINE',
       ...commonAttrs,
@@ -849,14 +849,14 @@ export class LibreEntityConverter {
       extrusionDirection: extrusionDirection,
       vertices: vertices.map(vertex => {
         return {
-          x: vertex.x,
-          y: vertex.y,
-          z: 0,
-          startWidth: 0,
-          endWidth: 0,
-          bulge: 0,
-          flag: 0,
-          tangentDirection: 0
+          x: vertex.point.x,
+          y: vertex.point.y,
+          z: vertex.point.z,
+          startWidth: vertex.start_width,
+          endWidth: vertex.end_width,
+          bulge: vertex.bulge,
+          flag: vertex.flag,
+          tangentDirection: vertex.tangent_dir
         } as unknown as DwgVertexEntity
       }),
       meshMVertexCount: 0,

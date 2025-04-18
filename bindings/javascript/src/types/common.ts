@@ -206,6 +206,16 @@ export interface Dwg_HATCH_Path {
   polyline_paths: Dwg_HATCH_PolylinePath[]
 }
 
+export interface Dwg_Entity_VERTEX_2D {
+  flag: number
+  point: DwgPoint3D
+  start_width: number
+  end_width: number
+  id: number
+  bulge: number
+  tangent_dir: number
+}
+
 export interface Dwg_Field_Value {
   success: boolean
   message?: string
