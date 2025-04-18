@@ -788,7 +788,9 @@ export class LibreDwg {
    * @param ptr Pointer to one Dwg_Object (not Dwg_Entity_POLYLINE_2D) instance.
    * @returns Returns vertices in one Dwg_Entity_POLYLINE_2D.
    */
-  dwg_entity_polyline_2d_get_vertices(ptr: Dwg_Object_Ptr): Dwg_Entity_VERTEX_2D[] {
+  dwg_entity_polyline_2d_get_vertices(
+    ptr: Dwg_Object_Ptr
+  ): Dwg_Entity_VERTEX_2D[] {
     const wasmInstance = this.wasmInstance
     return wasmInstance.dwg_entity_polyline_2d_get_vertices(ptr)
       .data as Dwg_Entity_VERTEX_2D[]

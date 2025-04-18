@@ -34,6 +34,7 @@ import {
   DwgPolylineBoundaryPath,
   DwgPolylineEntity,
   DwgRadialDiameterDimensionEntity,
+  DwgRayEntity,
   DwgSmoothType,
   DwgSplineEdge,
   DwgSplineEntity,
@@ -42,7 +43,8 @@ import {
   DwgTextEntity,
   DwgTextHorizontalAlign,
   DwgTextVerticalAlign,
-  DwgVertexEntity
+  DwgVertexEntity,
+  DwgXlineEntity
 } from '../database'
 import { LibreDwgEx } from '../libredwg'
 import {
@@ -111,12 +113,16 @@ export class LibreEntityConverter {
         return this.convertPoint(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_POLYLINE_2D) {
         return this.convertPolyline2d(entity_tio, commonAttrs, object_ptr)
+      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_RAY) {
+        return this.convertRay(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_SPLINE) {
         return this.convertSpline(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_TABLE) {
         return this.convertTable(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_TEXT) {
         return this.convertText(entity_tio, commonAttrs)
+      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_XLINE) {
+        return this.convertXline(entity_tio, commonAttrs)
       }
     }
     return undefined
@@ -867,6 +873,23 @@ export class LibreEntityConverter {
     }
   }
 
+  private convertRay(
+    entity: Dwg_Object_Entity_Ptr,
+    commonAttrs: DwgCommonAttributes
+  ): DwgRayEntity {
+    const libredwg = this.libredwg
+    const firstPoint = libredwg.dwg_dynapi_entity_value(entity, 'point')
+      .data as DwgPoint3D
+    const unitDirection = libredwg.dwg_dynapi_entity_value(entity, 'vector')
+      .data as DwgPoint3D
+    return {
+      type: 'RAY',
+      ...commonAttrs,
+      firstPoint: firstPoint,
+      unitDirection: unitDirection
+    }
+  }
+
   private convertSpline(
     entity: Dwg_Object_Entity_Ptr,
     commonAttrs: DwgCommonAttributes
@@ -1119,6 +1142,23 @@ export class LibreEntityConverter {
       halign: halign as DwgTextHorizontalAlign,
       valign: valign as DwgTextVerticalAlign,
       extrusionDirection: extrusionDirection
+    }
+  }
+
+  private convertXline(
+    entity: Dwg_Object_Entity_Ptr,
+    commonAttrs: DwgCommonAttributes
+  ): DwgXlineEntity {
+    const libredwg = this.libredwg
+    const firstPoint = libredwg.dwg_dynapi_entity_value(entity, 'point')
+      .data as DwgPoint3D
+    const unitDirection = libredwg.dwg_dynapi_entity_value(entity, 'vector')
+      .data as DwgPoint3D
+    return {
+      type: 'XLINE',
+      ...commonAttrs,
+      firstPoint: firstPoint,
+      unitDirection: unitDirection
     }
   }
 
