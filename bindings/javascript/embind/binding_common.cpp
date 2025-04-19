@@ -720,3 +720,71 @@ EMSCRIPTEN_BINDINGS(libredwg_dwg_object_ref) {
   DEFINE_FUNC(dwg_ref_get_handle);
   DEFINE_FUNC(dwg_ref_get_handle_object);
 }
+
+/***********************************************************************/
+
+uintptr_t dwg_ref_object_wrapper(
+  uintptr_t dwg_ptr,
+  uintptr_t ref_ptr) {
+  Dwg_Data* dwg = reinterpret_cast<Dwg_Data*>(dwg_ptr);
+  Dwg_Object_Ref* ref = reinterpret_cast<Dwg_Object_Ref*>(ref_ptr);
+  return reinterpret_cast<uintptr_t>(dwg_ref_object(dwg, ref));
+}
+
+uintptr_t dwg_ref_object_relative_wrapper(
+  uintptr_t dwg_ptr,
+  uintptr_t ref_ptr,
+  uintptr_t obj_ptr) {
+  Dwg_Data* dwg = reinterpret_cast<Dwg_Data*>(dwg_ptr);
+  Dwg_Object_Ref* ref = reinterpret_cast<Dwg_Object_Ref*>(ref_ptr);
+  Dwg_Object* obj = reinterpret_cast<Dwg_Object*>(obj_ptr);
+  return reinterpret_cast<uintptr_t>(dwg_ref_object_relative(dwg, ref, obj));
+}
+
+uintptr_t dwg_ref_object_silent_wrapper(
+  uintptr_t dwg_ptr,
+  uintptr_t ref_ptr) {
+  Dwg_Data* dwg = reinterpret_cast<Dwg_Data*>(dwg_ptr);
+  Dwg_Object_Ref* ref = reinterpret_cast<Dwg_Object_Ref*>(ref_ptr);
+  return reinterpret_cast<uintptr_t>(dwg_ref_object_silent(dwg, ref));
+}
+
+/** 
+ * Resolve handle absref value to Dwg_Object*. 
+*/
+uintptr_t dwg_resolve_handle_wrapper(
+  uintptr_t dwg_ptr,
+  BITCODE_RLL absref) {
+  Dwg_Data* dwg = reinterpret_cast<Dwg_Data*>(dwg_ptr);
+  return reinterpret_cast<uintptr_t>(dwg_resolve_handle(dwg, absref));
+}
+
+/** 
+ * Resolve handle to Dwg_Object* without warning info
+*/
+uintptr_t dwg_resolve_handle_silent_wrapper(
+  uintptr_t dwg_ptr,
+  const BITCODE_RLL absref) {
+  Dwg_Data* dwg = reinterpret_cast<Dwg_Data*>(dwg_ptr);
+  return reinterpret_cast<uintptr_t>(dwg_resolve_handle_silent(dwg, absref));
+}
+
+/** 
+ * Resolve Dwg_Object_Ref* to Dwg_Object*. 
+*/
+int dwg_resolve_handleref_wrapper(
+  uintptr_t ref_ptr,
+  uintptr_t obj_ptr) {
+  Dwg_Object_Ref* ref = reinterpret_cast<Dwg_Object_Ref*>(ref_ptr);
+  Dwg_Object* obj = reinterpret_cast<Dwg_Object*>(obj_ptr);
+  return dwg_resolve_handleref(ref, obj);
+}
+
+EMSCRIPTEN_BINDINGS(libredwg_conversion) {
+  DEFINE_FUNC(dwg_ref_object);
+  DEFINE_FUNC(dwg_ref_object_relative);
+  DEFINE_FUNC(dwg_ref_object_silent);
+  DEFINE_FUNC(dwg_resolve_handle);
+  DEFINE_FUNC(dwg_resolve_handle_silent);
+  DEFINE_FUNC(dwg_resolve_handleref);
+}

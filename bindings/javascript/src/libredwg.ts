@@ -32,6 +32,7 @@ import {
   Dwg_Object_Object_TIO_Ptr,
   Dwg_Object_Ptr,
   Dwg_Object_Ref,
+  Dwg_Object_Ref_Ptr,
   Dwg_Object_STYLE_Ptr,
   Dwg_Object_Type,
   Dwg_Object_VERTEX_2D_Ptr,
@@ -95,6 +96,89 @@ export class LibreDwg {
   convert(data: Dwg_Data_Ptr) {
     const converter = new LibreDwgConverter(this as unknown as LibreDwgEx)
     return converter.convert(data)
+  }
+
+  /**
+   * Get an object by its handle.
+   * @group Handle Conversion Methods
+   * @param data Pointer to Dwg_Data instance.
+   * @param ref_ptr Pointer to Dwg_Object_Ref instance.
+   * @returns Returns the object whose handle is equal to the given handle.
+   */
+  dwg_ref_object(
+    data: Dwg_Data_Ptr,
+    ref_ptr: Dwg_Object_Ref_Ptr
+  ): Dwg_Object_Ptr {
+    return this.wasmInstance.dwg_ref_object(data, ref_ptr)
+  }
+
+  /**
+   * Get an object by its handle without warning message.
+   * @group Handle Conversion Methods
+   * @param data Pointer to Dwg_Data instance.
+   * @param ref_ptr Pointer to Dwg_Object_Ref instance.
+   * @returns Returns the object whose handle is equal to the given handle.
+   */
+  dwg_ref_object_silent(
+    data: Dwg_Data_Ptr,
+    ref_ptr: Dwg_Object_Ref_Ptr
+  ): Dwg_Object_Ptr {
+    return this.wasmInstance.dwg_ref_object_silent(data, ref_ptr)
+  }
+
+  /**
+   * Get an object given its handle and relative base object.
+   * @group Handle Conversion Methods
+   * @param data Pointer to Dwg_Data instance.
+   * @param ref_ptr Pointer to Dwg_Object_Ref instance.
+   * @param obj_ptr Pointer to the relative base object (Dwg_Object instance).
+   * @returns Returns the object given its handle and relative base object.
+   */
+  dwg_ref_object_relative(
+    data: Dwg_Data_Ptr,
+    ref_ptr: Dwg_Object_Ref_Ptr,
+    obj_ptr: Dwg_Object_Ptr
+  ): Dwg_Object_Ptr {
+    return this.wasmInstance.dwg_ref_object_relative(data, ref_ptr, obj_ptr)
+  }
+
+  /**
+   * Resolve handle absref value to Dwg_Object instance.
+   * @group Handle Conversion Methods
+   * @param data Pointer to Dwg_Data instance.
+   * @param absref Handle absref value.
+   * @returns Returns the object with the given handle absref value.
+   */
+  dwg_resolve_handle(data: Dwg_Data_Ptr, absref: bigint): Dwg_Object_Ptr {
+    return this.wasmInstance.dwg_resolve_handle(data, absref)
+  }
+
+  /**
+   * Resolve handle absref value to Dwg_Object instance without warning message.
+   * @group Handle Conversion Methods
+   * @param data Pointer to Dwg_Data instance.
+   * @param absref Handle absref value.
+   * @returns Returns the object with the given handle absref value.
+   */
+  dwg_resolve_handle_silent(
+    data: Dwg_Data_Ptr,
+    absref: bigint
+  ): Dwg_Object_Ptr {
+    return this.wasmInstance.dwg_resolve_handle_silent(data, absref)
+  }
+
+  /**
+   * Sets ref->absolute_ref from the specified obj for a subsequent dwg_resolve_handle
+   * @group Handle Conversion Methods
+   * @param ref_ptr Pointer to Dwg_Object_Ref instance.
+   * @param obj_ptr Pointer to Dwg_Object instance.
+   * @returns Returns 1 if set absref value correctly. Otherwise, return 0.
+   */
+  dwg_resolve_handleref(
+    ref_ptr: Dwg_Object_Ref_Ptr,
+    obj_ptr: Dwg_Object_Ptr
+  ): number {
+    return this.wasmInstance.dwg_resolve_handleref(ref_ptr, obj_ptr)
   }
 
   /**
