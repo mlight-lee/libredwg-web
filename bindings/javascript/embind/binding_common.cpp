@@ -1,4 +1,4 @@
-#include "binding.h"
+#include "binding_common.h"
 
 emscripten::val handle_to_js_object(Dwg_Handle* handle) {
   emscripten::val handle_obj = emscripten::val::object();
