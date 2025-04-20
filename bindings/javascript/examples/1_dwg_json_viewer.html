@@ -13,11 +13,10 @@
     <div id="jsoneditor"></div>
     <script type="module" src="dist/libredwg-web.js" defer></script>
     <script type="module" >
-      import { Dwg_File_Type, LibreDwg } from './dist/libredwg-web.js';
+      import { Dwg_File_Type, LibreDwg } from './dist/libredwg-web.js'
 
       // load libredwg webassembly module
       const libredwg = await LibreDwg.create()
-      window.libredwg = libredwg
 
       // create the editor
       const container = document.getElementById('jsoneditor')
@@ -32,11 +31,11 @@
         const file = event.target.files[0]
         if (file) {
           // create a FileReader to read the file
-          const reader = new FileReader();
+          const reader = new FileReader()
 
           // define the callback function for when the file is read
           reader.onload = function(e) {
-            const fileContent = e.target.result;
+            const fileContent = e.target.result
             try {
               const dwg = libredwg.dwg_read_data(fileContent, Dwg_File_Type.DWG)
               const model = libredwg.convert(dwg)
@@ -47,7 +46,7 @@
           }
 
           // read the file
-          reader.readAsArrayBuffer(file);
+          reader.readAsArrayBuffer(file)
         } else {
           console.log('No file selected')
         }

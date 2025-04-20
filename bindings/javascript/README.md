@@ -59,13 +59,25 @@ npm install @mlightcad/libredwg-web
 The raw web assembly module (wasm file and JavaScript glue code file) is stored in folder [wasm](./wasm/). 
 
 ```javascript
-import createModule from "@mlightcad/libredwg-web/wasm/libredwg-web.js";
+import { createModule } from "@mlightcad/libredwg-web/wasm/libredwg-web.js";
+
+// Create libredwg module
 const libredwg = await createModule();
 
-// The second paramter represents file types
-// - 0: dwg file
-// - 1: dxf file
-const dwg = libredwg.dwg_read_data(fileContent, 0);
+// Store file content to one temporary file and read it
+const fileName = 'tmp.dwg';
+libredwg.FS.writeFile(
+  fileName,
+  new Uint8Array(fileContent)
+);
+const result = libredwg.dwg_read_file(fileName);
+if (result.error != 0) {
+  console.log('Failed to open dwg file with error code: ', result.error);
+}
+libredwg.FS.unlink(fileName);
+
+// Get pointer to Dwg_Data
+const data = result.data;
 ```
 
 ### Use Web Assembly Wrapper

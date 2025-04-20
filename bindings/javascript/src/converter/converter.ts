@@ -82,10 +82,12 @@ export class LibreDwgConverter {
         const fixedtype = libredwg.dwg_object_get_fixedtype(obj)
         switch (fixedtype) {
           case Dwg_Object_Type.DWG_TYPE_BLOCK_HEADER:
-            const btr = this.convertBlockRecord(tio, obj)
-            db.tables.BLOCK_RECORD.entries.push(btr)
-            if (btr.name == '*Model_Space') {
-              db.entities = btr.entities
+            {
+              const btr = this.convertBlockRecord(tio, obj)
+              db.tables.BLOCK_RECORD.entries.push(btr)
+              if (btr.name == '*Model_Space') {
+                db.entities = btr.entities
+              }
             }
             break
           case Dwg_Object_Type.DWG_TYPE_DIMSTYLE:
