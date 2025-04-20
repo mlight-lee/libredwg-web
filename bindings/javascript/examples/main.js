@@ -199,7 +199,7 @@ fileInput.addEventListener('change', function(event) {
 
         printAllItems(libredwg, data);
 
-        const entities = libredwg.dwg_getall_entitie_in_model_space(data);
+        const entities = libredwg.dwg_getall_entities_in_model_space(data);
         printEntityStats('entityList', libredwg, entities);
 
         const polylines = libredwg.dwg_getall_LWPOLYLINE(data);

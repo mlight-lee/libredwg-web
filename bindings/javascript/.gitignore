@@ -11,7 +11,7 @@ node_modules
 
 # web assembly files
 src/libredwg-web.js
-test/libredwg*
+examples/libredwg*
 
 # IDEs and editors
 /.idea
