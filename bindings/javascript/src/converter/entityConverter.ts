@@ -30,6 +30,8 @@ import {
   DwgLWPolylineVertex,
   DwgMTextDrawingDirection,
   DwgMTextEntity,
+  DwgOle2FrameEntity,
+  DwgOleFrameEntity,
   DwgOrdinateDimensionEntity,
   DwgPoint2D,
   DwgPoint3D,
@@ -39,6 +41,7 @@ import {
   DwgRadialDiameterDimensionEntity,
   DwgRayEntity,
   DwgSmoothType,
+  DwgSolidEntity,
   DwgSplineEdge,
   DwgSplineEntity,
   DwgTableCell,
@@ -46,6 +49,7 @@ import {
   DwgTextEntity,
   DwgTextHorizontalAlign,
   DwgTextVerticalAlign,
+  DwgToleranceEntity,
   DwgVertexEntity,
   DwgWipeoutEntity,
   DwgXlineEntity
@@ -115,18 +119,26 @@ export class LibreEntityConverter {
         return this.convertLWPolyline(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_MTEXT) {
         return this.convertMText(entity_tio, commonAttrs)
+      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_OLE2FRAME) {
+        return this.convertOle2Frame(entity_tio, commonAttrs)
+      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_OLEFRAME) {
+        return this.convertOleFrame(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_POINT) {
         return this.convertPoint(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_POLYLINE_2D) {
         return this.convertPolyline2d(entity_tio, commonAttrs, object_ptr)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_RAY) {
         return this.convertRay(entity_tio, commonAttrs)
+      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_SOLID) {
+        return this.convertSolid(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_SPLINE) {
         return this.convertSpline(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_TABLE) {
         return this.convertTable(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_TEXT) {
         return this.convertText(entity_tio, commonAttrs)
+      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_TOLERANCE) {
+        return this.convertTolerance(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_WIPEOUT) {
         return this.convertWipeout(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_XLINE) {
@@ -768,6 +780,65 @@ export class LibreEntityConverter {
     }
   }
 
+  private convertOle2Frame(
+    entity: Dwg_Object_Entity_Ptr,
+    commonAttrs: DwgCommonAttributes
+  ): DwgOle2FrameEntity {
+    const libredwg = this.libredwg
+    const oleVersion = libredwg.dwg_dynapi_entity_value(entity, 'oleversion')
+      .data as number
+    const oleClient = libredwg.dwg_dynapi_entity_value(entity, 'oleclient')
+      .data as string
+    const dataSize = libredwg.dwg_dynapi_entity_value(entity, 'data_size')
+      .data as number
+    const leftUpPoint = libredwg.dwg_dynapi_entity_value(entity, 'pt1')
+      .data as DwgPoint3D
+    const rightDownPoint = libredwg.dwg_dynapi_entity_value(entity, 'pt2')
+      .data as DwgPoint3D
+    const lockAspect = libredwg.dwg_dynapi_entity_value(entity, 'lock_aspect')
+      .data as number
+    const oleObjectType = libredwg.dwg_dynapi_entity_value(entity, 'type')
+      .data as number
+    const tileModeDescriptor = libredwg.dwg_dynapi_entity_value(entity, 'mode')
+      .data as number
+    const binaryData = libredwg.dwg_dynapi_entity_value(entity, 'data')
+      .data as string
+    return {
+      type: 'OLE2FRAME',
+      ...commonAttrs,
+      oleVersion: oleVersion,
+      oleClient: oleClient,
+      dataSize: dataSize,
+      leftUpPoint: leftUpPoint,
+      rightDownPoint: rightDownPoint,
+      lockAspect: lockAspect,
+      oleObjectType: oleObjectType,
+      tileModeDescriptor: tileModeDescriptor,
+      binaryData: binaryData
+    }
+  }
+
+  private convertOleFrame(
+    entity: Dwg_Object_Entity_Ptr,
+    commonAttrs: DwgCommonAttributes
+  ): DwgOleFrameEntity {
+    const libredwg = this.libredwg
+    const flag = libredwg.dwg_dynapi_entity_value(entity, 'flag').data as number
+    const mode = libredwg.dwg_dynapi_entity_value(entity, 'mode').data as number
+    const dataSize = libredwg.dwg_dynapi_entity_value(entity, 'data_size')
+      .data as number
+    const binaryData = libredwg.dwg_dynapi_entity_value(entity, 'data')
+      .data as string
+    return {
+      type: 'OLEFRAME',
+      ...commonAttrs,
+      flag: flag,
+      mode: mode,
+      dataSize: dataSize,
+      binaryData: binaryData
+    }
+  }
+
   private convertMText(
     entity: Dwg_Object_Entity_Ptr,
     commonAttrs: DwgCommonAttributes
@@ -969,6 +1040,38 @@ export class LibreEntityConverter {
       ...commonAttrs,
       firstPoint: firstPoint,
       unitDirection: unitDirection
+    }
+  }
+
+  private convertSolid(
+    entity: Dwg_Object_Entity_Ptr,
+    commonAttrs: DwgCommonAttributes
+  ): DwgSolidEntity {
+    const libredwg = this.libredwg
+    const corner1 = libredwg.dwg_dynapi_entity_value(entity, 'corner1')
+      .data as DwgPoint2D
+    const corner2 = libredwg.dwg_dynapi_entity_value(entity, 'corner2')
+      .data as DwgPoint2D
+    const corner3 = libredwg.dwg_dynapi_entity_value(entity, 'corner3')
+      .data as DwgPoint2D
+    const corner4 = libredwg.dwg_dynapi_entity_value(entity, 'corner4')
+      .data as DwgPoint2D
+    const thickness = libredwg.dwg_dynapi_entity_value(entity, 'thickness')
+      .data as number
+    const extrusionDirection = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'extrusion'
+    ).data as DwgPoint3D
+
+    return {
+      type: 'SOLID',
+      ...commonAttrs,
+      corner1: corner1,
+      corner2: corner2,
+      corner3: corner3,
+      corner4: corner4,
+      thickness: thickness,
+      extrusionDirection: extrusionDirection
     }
   }
 
@@ -1227,6 +1330,36 @@ export class LibreEntityConverter {
     }
   }
 
+  private convertTolerance(
+    entity: Dwg_Object_Entity_Ptr,
+    commonAttrs: DwgCommonAttributes
+  ): DwgToleranceEntity {
+    const libredwg = this.libredwg
+    const insertionPoint = libredwg.dwg_dynapi_entity_value(entity, 'ins_pt')
+      .data as DwgPoint3D
+    const text = libredwg.dwg_dynapi_entity_value(entity, 'text_value')
+      .data as string
+    const xAxisDirection = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'x_direction'
+    ).data as DwgPoint3D
+    const extrusionDirection = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'extrusion'
+    ).data as DwgPoint3D
+    const dimStyleName = libredwg.dwg_entity_get_style_name(entity)
+
+    return {
+      type: 'TOLERANCE',
+      ...commonAttrs,
+      dimStyleName: dimStyleName,
+      insertionPoint: insertionPoint,
+      text: text,
+      extrusionDirection: extrusionDirection,
+      xAxisDirection: xAxisDirection
+    }
+  }
+
   private convertWipeout(
     entity: Dwg_Object_Entity_Ptr,
     commonAttrs: DwgCommonAttributes
@@ -1360,7 +1493,7 @@ export class LibreEntityConverter {
       entity,
       'extrusion'
     ).data as DwgPoint3D
-    const styleName = libredwg.dwg_entity_dimension_get_style_name(entity)
+    const styleName = libredwg.dwg_entity_get_style_name(entity)
 
     return {
       type: 'DIMENSION',
