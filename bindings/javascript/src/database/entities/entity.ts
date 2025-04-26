@@ -49,7 +49,7 @@ export interface DwgEntity {
    */
   isVisible?: boolean
   /**
-   * Number of bytes in the proxy entity graphics represented in the subsequent 310 groups, 
+   * Number of bytes in the proxy entity graphics represented in the subsequent 310 groups,
    * which are binary chunk records (optional)
    */
   proxyByte?: number
@@ -58,8 +58,8 @@ export interface DwgEntity {
    */
   proxyEntity?: string
   /**
-   * A 24-bit color value that should be dealt with in terms of bytes with values of 0 to 255. 
-   * The lowest byte is the blue value, the middle byte is the green value, and the third byte 
+   * A 24-bit color value that should be dealt with in terms of bytes with values of 0 to 255.
+   * The lowest byte is the blue value, the middle byte is the green value, and the third byte
    * is the red value. The top byte is always 0. The group code cannot be used by custom entities
    * for their own data because the group code is reserved for AcDbEntity, class-level color data
    * and AcDbEntity, class-level transparency data
@@ -87,7 +87,7 @@ export interface DwgEntity {
    * - 1: Casts shadows
    * - 2: Receives shadows
    * - 3: Ignores shadows
-   * 
+   *
    * Note: Starting with AutoCAD 2016-based products, this property is obsolete but still supported
    * for backwards compatibility.
    */

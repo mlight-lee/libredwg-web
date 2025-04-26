@@ -15,7 +15,7 @@ export interface DwgLeaderEntity extends DwgEntity {
    */
   styleName: string
   /**
-   * Arrowhead flag: 
+   * Arrowhead flag:
    * - 0: Disabled
    * - 1: Enabled
    */

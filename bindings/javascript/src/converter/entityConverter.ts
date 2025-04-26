@@ -24,6 +24,7 @@ import {
   DwgImageEntity,
   DwgImageFlags,
   DwgInsertEntity,
+  DwgLeaderEntity,
   DwgLineEdge,
   DwgLineEntity,
   DwgLWPolylineEntity,
@@ -113,6 +114,8 @@ export class LibreEntityConverter {
         return this.convertImage(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_INSERT) {
         return this.convertInsert(entity_tio, commonAttrs)
+      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_LEADER) {
+        return this.convertLeader(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_LINE) {
         return this.convertLine(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_LWPOLYLINE) {
@@ -695,6 +698,84 @@ export class LibreEntityConverter {
       columnSpacing: columnSpacing,
       rowSpacing: rowSpacing,
       extrusionDirection: extrusionDirection
+    }
+  }
+
+  private convertLeader(
+    entity: Dwg_Object_Entity_Ptr,
+    commonAttrs: DwgCommonAttributes
+  ): DwgLeaderEntity {
+    const libredwg = this.libredwg
+    const styleName = libredwg.dwg_entity_mtext_get_style_name(entity)
+    const isArrowheadEnabled = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'arrowhead_type'
+    ).data as number
+    const isSpline = libredwg.dwg_dynapi_entity_value(entity, 'path_type')
+      .data as number
+    const leaderCreationFlag = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'annot_type'
+    ).data as number
+    const isHooklineSameDirection = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'hookline_dir'
+    ).data as number
+    const isHooklineExists = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'hookline_on'
+    ).data as number
+    const textHeight = libredwg.dwg_dynapi_entity_value(entity, 'box_height')
+      .data as number
+    const textWidth = libredwg.dwg_dynapi_entity_value(entity, 'box_width')
+      .data as number
+    const numberOfVertices = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'num_points'
+    ).data as number
+    const vertices_ptr = libredwg.dwg_dynapi_entity_value(entity, 'points')
+      .data as number
+    const vertices =
+      numberOfVertices > 0
+        ? libredwg.dwg_ptr_to_point3d_array(vertices_ptr, numberOfVertices)
+        : []
+    const byBlockColor = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'byblock_color'
+    ).data as number
+    const normal = libredwg.dwg_dynapi_entity_value(entity, 'extrusion')
+      .data as DwgPoint3D
+    const horizontalDirection = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'x_direction'
+    ).data as DwgPoint3D
+    const offsetFromBlock = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'inspt_offset'
+    ).data as DwgPoint3D
+    const offsetFromAnnotation = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'endptproj'
+    ).data as DwgPoint3D
+
+    return {
+      type: 'LEADER',
+      ...commonAttrs,
+      styleName: styleName,
+      isArrowheadEnabled: isArrowheadEnabled > 0,
+      isSpline: isSpline > 0,
+      leaderCreationFlag: leaderCreationFlag,
+      isHooklineSameDirection: isHooklineSameDirection > 0,
+      isHooklineExists: isHooklineExists > 0,
+      textHeight: textHeight,
+      textWidth: textWidth,
+      numberOfVertices: numberOfVertices,
+      vertices: vertices,
+      byBlockColor: byBlockColor,
+      normal: normal,
+      horizontalDirection: horizontalDirection,
+      offsetFromBlock: offsetFromBlock,
+      offsetFromAnnotation: offsetFromAnnotation
     }
   }
 

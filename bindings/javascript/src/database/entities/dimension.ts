@@ -91,8 +91,8 @@ export interface DwgDimensionEntityCommon extends DwgEntity {
    */
   textPoint: DwgPoint2D
   /**
-   * Dimension type: Values 0-6 are integer values that represent the dimension type. 
-   * Values 32, 64, and 128 are bit values, which are added to the integer values 
+   * Dimension type: Values 0-6 are integer values that represent the dimension type.
+   * Values 32, 64, and 128 are bit values, which are added to the integer values
    * (value 32 is always set in R13 and later releases)
    * - 0: Rotated, horizontal, or vertical
    * - 1: Aligned
@@ -102,7 +102,7 @@ export interface DwgDimensionEntityCommon extends DwgEntity {
    * - 5: Angular 3-point
    * - 6: Ordinate
    * - 32: Indicates that the block reference (group code 2) is referenced by this dimension only
-   * - 64: Ordinate type. This is a bit value (bit 7) used only with integer value 6. If set, 
+   * - 64: Ordinate type. This is a bit value (bit 7) used only with integer value 6. If set,
    * ordinate is X-type; if not set, ordinate is Y-type.
    * - 128: This is a bit value (bit 8) added to the other group 70 values if the dimension text
    * has been positioned at a user-defined location rather than at the default location.
@@ -150,7 +150,7 @@ export interface DwgDimensionEntityCommon extends DwgEntity {
   /**
    * The horizontal direction for the dimension entity. The dimension entity determines the orientation
    * of dimension text and lines for horizontal, vertical, and rotated linear dimensions
-   * This group value is the negative of the angle between the OCS X axis and the UCS X axis. It is 
+   * This group value is the negative of the angle between the OCS X axis and the UCS X axis. It is
    * always in the XY plane of the OCS.
    */
   ocsRotation?: number
