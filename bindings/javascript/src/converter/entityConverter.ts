@@ -41,6 +41,7 @@ import {
   DwgPolylineEntity,
   DwgRadialDiameterDimensionEntity,
   DwgRayEntity,
+  DwgSectionEntity,
   DwgSmoothType,
   DwgSolidEntity,
   DwgSplineEdge,
@@ -132,6 +133,8 @@ export class LibreEntityConverter {
         return this.convertPolyline2d(entity_tio, commonAttrs, object_ptr)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_RAY) {
         return this.convertRay(entity_tio, commonAttrs)
+      } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_SECTIONOBJECT) {
+        return this.convertSection(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_SOLID) {
         return this.convertSolid(entity_tio, commonAttrs)
       } else if (fixedtype == Dwg_Object_Type.DWG_TYPE_SPLINE) {
@@ -1121,6 +1124,84 @@ export class LibreEntityConverter {
       ...commonAttrs,
       firstPoint: firstPoint,
       unitDirection: unitDirection
+    }
+  }
+
+  private convertSection(
+    entity: Dwg_Object_Entity_Ptr,
+    commonAttrs: DwgCommonAttributes
+  ): DwgSectionEntity {
+    const libredwg = this.libredwg
+    const state = libredwg.dwg_dynapi_entity_value(entity, 'state')
+      .data as number
+    const flag = libredwg.dwg_dynapi_entity_value(entity, 'flag').data as number
+    const name = libredwg.dwg_dynapi_entity_value(entity, 'name').data as string
+    const verticalDirection = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'vert_dir'
+    ).data as DwgPoint3D
+    const topHeight = libredwg.dwg_dynapi_entity_value(entity, 'top_height')
+      .data as number
+    const bottomHeight = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'bottom_height'
+    ).data as number
+    const indicatorTransparency = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'indicator_alpha'
+    ).data as number
+    const indicatorColor = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'indicator_color'
+    ).data as Dwg_Color
+    const numberOfVertices = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'num_verts'
+    ).data as number
+    const vertices_ptr = libredwg.dwg_dynapi_entity_value(entity, 'verts')
+      .data as number
+    const vertices =
+      numberOfVertices > 0
+        ? libredwg.dwg_ptr_to_point3d_array(vertices_ptr, numberOfVertices)
+        : []
+    const numberOfBackLineVertices = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'num_blverts'
+    ).data as number
+    const backLineVertices_ptr = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'blverts'
+    ).data as number
+    const backLineVertices =
+      numberOfBackLineVertices > 0
+        ? libredwg.dwg_ptr_to_point3d_array(
+            backLineVertices_ptr,
+            numberOfBackLineVertices
+          )
+        : []
+    const geometrySettingHandle = libredwg.dwg_dynapi_entity_value(
+      entity,
+      'geometrySettingHardId'
+    ).data as number
+    const geometrySettingHardId = libredwg.dwg_ref_get_handle_absolute_ref(
+      geometrySettingHandle
+    )
+    return {
+      type: 'SECTION',
+      ...commonAttrs,
+      state: state,
+      flag: flag,
+      name: name,
+      verticalDirection: verticalDirection,
+      topHeight: topHeight,
+      bottomHeight: bottomHeight,
+      indicatorTransparency: indicatorTransparency,
+      indicatorColor: indicatorColor.rgb,
+      numberOfVertices: numberOfVertices,
+      vertices: vertices,
+      numberOfBackLineVertices: numberOfBackLineVertices,
+      backLineVertices: backLineVertices,
+      geometrySettingHardId: geometrySettingHardId
     }
   }
 
