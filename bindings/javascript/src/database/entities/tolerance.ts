@@ -9,7 +9,7 @@ export interface DwgToleranceEntity extends DwgEntity {
   /**
    * Dimension style name
    */
-  dimStyleName: string
+  styleName: string
   /**
    * Insertion point (in WCS)
    */

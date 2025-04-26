@@ -1352,7 +1352,7 @@ export class LibreEntityConverter {
     return {
       type: 'TOLERANCE',
       ...commonAttrs,
-      dimStyleName: dimStyleName,
+      styleName: dimStyleName,
       insertionPoint: insertionPoint,
       text: text,
       extrusionDirection: extrusionDirection,
