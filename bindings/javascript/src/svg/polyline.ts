@@ -65,9 +65,12 @@ export function createPolylineArcPoints(
   return points
 }
 
-export function interpolatePolyline(entity: DwgPolylineEntity | DwgLWPolylineEntity, closed: boolean = false) {
+export function interpolatePolyline(
+  entity: DwgPolylineEntity | DwgLWPolylineEntity,
+  closed: boolean = false
+) {
   let points: DwgPoint2D[] = []
-  const vertices = entity.vertices.map((v) => {
+  const vertices = entity.vertices.map(v => {
     return {
       x: v.x,
       y: v.y,
@@ -83,7 +86,7 @@ export function interpolatePolyline(entity: DwgPolylineEntity | DwgLWPolylineEnt
     points.push(from)
     if (vertices[i].bulge) {
       points = points.concat(
-        createPolylineArcPoints(from, to, entity.vertices[i].bulge),
+        createPolylineArcPoints(from, to, entity.vertices[i].bulge)
       )
     }
     // The last iteration of the for loop
