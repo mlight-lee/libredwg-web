@@ -1,9 +1,9 @@
 import { Box2D } from './box2d'
 
 type Transform =
-  | { type: "translate"; x: number; y: number }
-  | { type: "rotate"; angle: number }
-  | { type: "scale"; x: number; y: number }
+  | { type: 'translate'; x: number; y: number }
+  | { type: 'rotate'; angle: number }
+  | { type: 'scale'; x: number; y: number }
 
 export const transformBoundingBoxAndElement = (
   bbox: Box2D,
@@ -16,13 +16,13 @@ export const transformBoundingBoxAndElement = (
 
   let transformedElement = element
 
-  transforms.forEach((transform) => {
+  transforms.forEach(transform => {
     // Apply each transformation to the element
-    if (transform.type === "translate") {
+    if (transform.type === 'translate') {
       transformedElement = `<g transform="translate(${transform.x}, ${transform.y})">${transformedElement}</g>`
-    } else if (transform.type === "rotate") {
+    } else if (transform.type === 'rotate') {
       transformedElement = `<g transform="rotate(${transform.angle})">${transformedElement}</g>`
-    } else if (transform.type === "scale") {
+    } else if (transform.type === 'scale') {
       transformedElement = `<g transform="scale(${transform.x}, ${transform.y})">${transformedElement}</g>`
     }
   })

@@ -1,5 +1,3 @@
-import { transformBoundingBoxAndElement } from './transformBoundingBoxAndElement'
-import { Box2D } from './box2d'
 import {
   DwgArcEntity,
   DwgCircleEntity,
@@ -13,8 +11,11 @@ import {
   DwgPolylineEntity,
   DwgSplineEntity
 } from '../database'
-import { Color } from './color'
+import { Box2D } from './box2d'
 import { evaluateBSpline } from './bspline'
+import { Color } from './color'
+import { interpolatePolyline } from './polyline'
+import { transformBoundingBoxAndElement } from './transformBoundingBoxAndElement'
 
 export class SvgConverter {
   private rotate(point: DwgPoint2D, angle: number) {
@@ -86,10 +87,10 @@ export class SvgConverter {
   }
 
   private addFlipXIfApplicable(
-    entity: any,
+    entity: DwgEntity,
     { bbox, element }: { bbox: Box2D; element: string }
   ) {
-    if (entity.extrusionZ === -1) {
+    if ('extrusionDirection' in entity && entity.extrusionDirection === -1) {
       return {
         bbox: new Box2D()
           .expandByPoint({ x: -bbox.min.x, y: bbox.min.y })
@@ -109,32 +110,38 @@ export class SvgConverter {
     return transformBoundingBoxAndElement(bbox, element)
   }
 
-  private polyline(vertices: DwgPoint2D[]) {
+  private vertices(vertices: DwgPoint2D[], closed: boolean = false) {
     const bbox = vertices.reduce(
       (acc: Box2D, point: DwgPoint2D) => acc.expandByPoint(point),
       new Box2D()
     )
-    const d = vertices.reduce((acc: string, point: DwgPoint2D, i: number) => {
+    let d = vertices.reduce((acc: string, point: DwgPoint2D, i: number) => {
       acc += i === 0 ? 'M' : 'L'
       acc += point.x + ',' + point.y
       return acc
     }, '')
-    return transformBoundingBoxAndElement(
-      bbox,
-      `<path d="${d}" />`
-    )
+    if (closed) {
+      d += 'Z'
+    }
+    return transformBoundingBoxAndElement(bbox, `<path d="${d}" />`)
   }
 
-  private circle(entity: any) {
+  private circle(entity: DwgCircleEntity) {
     const bbox0 = new Box2D()
-      .expandByPoint({ x: entity.x + entity.r, y: entity.y + entity.r })
-      .expandByPoint({ x: entity.x - entity.r, y: entity.y - entity.r })
-    const element0 = `<circle cx="${entity.x}" cy="${entity.y}" r="${entity.r}" />`
+      .expandByPoint({
+        x: entity.center.x + entity.radius,
+        y: entity.center.y + entity.radius
+      })
+      .expandByPoint({
+        x: entity.center.x - entity.radius,
+        y: entity.center.y - entity.radius
+      })
+    const element0 = `<circle cx="${entity.center.x}" cy="${entity.center.y}" r="${entity.radius}" />`
     const { bbox, element } = this.addFlipXIfApplicable(entity, {
       bbox: bbox0,
       element: element0
     })
-    return transformBoundingBoxAndElement(bbox, element, entity.transforms)
+    return transformBoundingBoxAndElement(bbox, element)
   }
 
   private ellipseOrArc(
@@ -247,12 +254,12 @@ export class SvgConverter {
     return bbox
   }
 
-  private ellipse(entity: any) {
+  private ellipse(entity: DwgEllipseEntity) {
     const { bbox: bbox0, element: element0 } = this.ellipseOrArc(
-      entity.x,
-      entity.y,
-      entity.majorX,
-      entity.majorY,
+      entity.center.x,
+      entity.center.y,
+      entity.majorAxisEndPoint.x,
+      entity.majorAxisEndPoint.y,
       entity.axisRatio,
       entity.startAngle,
       entity.endAngle
@@ -261,14 +268,14 @@ export class SvgConverter {
       bbox: bbox0,
       element: element0
     })
-    return transformBoundingBoxAndElement(bbox, element, entity.transforms)
+    return transformBoundingBoxAndElement(bbox, element)
   }
 
-  private arc(entity: any) {
+  private arc(entity: DwgArcEntity) {
     const { bbox: bbox0, element: element0 } = this.ellipseOrArc(
-      entity.x,
-      entity.y,
-      entity.r,
+      entity.center.x,
+      entity.center.y,
+      entity.radius,
       0,
       1,
       entity.startAngle,
@@ -278,7 +285,7 @@ export class SvgConverter {
       bbox: bbox0,
       element: element0
     })
-    return transformBoundingBoxAndElement(bbox, element, entity.transforms)
+    return transformBoundingBoxAndElement(bbox, element)
   }
 
   private entityToBoundsAndElement(entity: DwgEntity) {
@@ -291,7 +298,7 @@ export class SvgConverter {
         return this.arc(entity as DwgArcEntity)
       case 'SPLINE': {
         const spline = entity as DwgSplineEntity
-        return this.polyline(
+        return this.vertices(
           this.interpolateBSpline(
             spline.controlPoints,
             spline.degree,
@@ -303,10 +310,18 @@ export class SvgConverter {
       }
       case 'LINE':
         return this.line(entity as DwgLineEntity)
-      case 'LWPOLYLINE':
-        return this.polyline((entity as DwgLWPolylineEntity).vertices)
-      case 'POLYLINE':
-        return this.polyline((entity as DwgPolylineEntity).vertices)
+      case 'LWPOLYLINE': {
+        const lwpolyline = entity as DwgLWPolylineEntity
+        const closed = !!(lwpolyline.flag & 0x200)
+        const vertices = interpolatePolyline(lwpolyline, closed)
+        return this.vertices(vertices, closed)
+      }
+      case 'POLYLINE': {
+        const polyline = entity as DwgPolylineEntity
+        const closed = !!(polyline.flag & 0x1)
+        const vertices = interpolatePolyline(polyline, closed)
+        return this.vertices(vertices, closed)
+      }
       default:
         return null
     }
