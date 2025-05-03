@@ -15,6 +15,7 @@ import {
   DwgPoint3D,
   DwgStyleTableEntry,
   DwgVPortTableEntry,
+  HEADER_VARIABLES,
   MODEL_SPACE
 } from '../database'
 import { LibreDwgEx } from '../libredwg'
@@ -67,9 +68,7 @@ export class LibreDwgConverter {
         IMAGEDEF: [],
         LAYOUT: []
       },
-      header: {
-        variables: new Map()
-      },
+      header: {},
       entities: []
     }
     const libredwg = this.libredwg
@@ -123,20 +122,12 @@ export class LibreDwgConverter {
 
   private convertHeader(data: Dwg_Data_Ptr, header: DwgHeader) {
     const libredwg = this.libredwg
-    const variables = [
-      'CECOLOR',
-      'ANGBASE',
-      'ANGDIR',
-      'AUNITS',
-      'INSUNITS',
-      'PDMODE',
-      'PDSIZE'
-    ]
-    const headerVars = header.variables
-    variables.forEach(name => {
-      // TODO: For number variables are converted only
-      const value = libredwg.dwg_dynapi_header_value(data, name).data as number
-      headerVars.set(name, value)
+    HEADER_VARIABLES.forEach(name => {
+      const value = libredwg.dwg_dynapi_header_value(data, name).data as
+        | number
+        | string
+      // @ts-expect-error header variable name
+      header[name] = value
     })
   }
 
