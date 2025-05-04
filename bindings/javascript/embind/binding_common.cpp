@@ -111,6 +111,16 @@ EMSCRIPTEN_BINDINGS(libredwg_type) {
 #define DEFINE_ARRAY_FUNC(type)                                                        \
 emscripten::val dwg_ptr_to_##type##_array_wrapper(uintptr_t array_ptr, size_t size) {  \
   type* array = reinterpret_cast<type*>(array_ptr);                                    \
+  emscripten::val jsArray = emscripten::val::array();                                  \
+  for (int index = 0; index < size; ++index) {                                         \
+    jsArray.call<void>("push", array[index]);                                          \
+  }                                                                                    \
+  return jsArray;                                                                      \
+}
+
+#define DEFINE_TYPED_ARRAY_FUNC(type)                                                  \
+emscripten::val dwg_ptr_to_##type##_array_wrapper(uintptr_t array_ptr, size_t size) {  \
+  type* array = reinterpret_cast<type*>(array_ptr);                                    \
   std::vector<type> data(array, array + size);                                         \
   return emscripten::val(emscripten::typed_memory_view(data.size(), data.data()));     \
 }
@@ -141,12 +151,20 @@ emscripten::val dwg_ptr_to_signed_char_array(signed char* array, size_t size) {
 
 emscripten::val dwg_ptr_to_unsigned_char_array_wrapper(uintptr_t array_ptr, size_t size) {
   unsigned char* array = reinterpret_cast<unsigned char*>(array_ptr);
-  return dwg_ptr_to_unsigned_char_array(array, size);
+  emscripten::val jsArray = emscripten::val::array();
+  for (int index = 0; index < size; ++index) {
+    jsArray.call<void>("push", array[index]);
+  }
+  return jsArray;
 }
 
 emscripten::val dwg_ptr_to_signed_char_array_wrapper(uintptr_t array_ptr, size_t size) {
   signed char* array = reinterpret_cast<signed char*>(array_ptr);
-  return dwg_ptr_to_signed_char_array(array, size);
+  emscripten::val jsArray = emscripten::val::array();
+  for (int index = 0; index < size; ++index) {
+    jsArray.call<void>("push", array[index]);
+  }
+  return jsArray;
 }
 
 emscripten::val dwg_ptr_to_point2d_array_wrapper(uintptr_t array_ptr, size_t size) {
