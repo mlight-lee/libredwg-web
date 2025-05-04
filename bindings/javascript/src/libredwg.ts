@@ -949,6 +949,20 @@ export class LibreDwg {
   }
 
   /**
+   * Returns preview image of the block pointed by the specified block header.
+   * @group Dwg_Entity_BLOCK_HEADER Methods
+   * @param ptr Pointer to one Dwg_Entity_BLOCK_HEADER instance.
+   * @returns Returns preview image of the block pointed by the specified block header.
+   */
+  dwg_entity_block_header_get_preview(
+    ptr: Dwg_Object_BLOCK_HEADER_Ptr
+  ): Uint8Array {
+    const wasmInstance = this.wasmInstance
+    return wasmInstance.dwg_entity_block_header_get_preview(ptr)
+      .data as Uint8Array
+  }
+
+  /**
    * Returns the first entity owned by the block header or null
    * @group Dwg_Entity_BLOCK_HEADER Methods
    * @param ptr Pointer to the block header.

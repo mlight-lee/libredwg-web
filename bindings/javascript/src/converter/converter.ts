@@ -178,7 +178,21 @@ export class LibreDwgConverter {
     const layout_ptr = libredwg.dwg_dynapi_entity_value(item, 'layout')
       .data as number
     const layout = libredwg.dwg_ref_get_absref(layout_ptr)
-    // TODO: Handle preview
+
+    let bmpPreview = ''
+    const uint8ArrayToHexString = (bytes: Uint8Array): string => {
+      const hexChars: string[] = new Array(bytes.length)
+      for (let i = 0; i < bytes.length; i++) {
+        hexChars[i] = bytes[i].toString(16).toUpperCase()
+      }
+      return hexChars.join('')
+    }
+    const bmpPreviewBinaryData =
+      libredwg.dwg_entity_block_header_get_preview(item)
+    if (bmpPreviewBinaryData && bmpPreviewBinaryData.length > 0) {
+      bmpPreview = uint8ArrayToHexString(bmpPreviewBinaryData)
+    }
+
     const entities = this.convertEntities(obj, commonAttrs.handle)
 
     return {
@@ -190,6 +204,7 @@ export class LibreDwgConverter {
       insertionUnits: insertionUnits,
       explodability: explodability,
       scalability: scalability,
+      bmpPreview: bmpPreview,
       entities: entities
     }
   }

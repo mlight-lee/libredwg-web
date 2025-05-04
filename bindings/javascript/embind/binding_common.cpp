@@ -123,22 +123,30 @@ DEFINE_ARRAY_FUNC(int32_t)
 DEFINE_ARRAY_FUNC(uint64_t)
 DEFINE_ARRAY_FUNC(int64_t)
 
+emscripten::val dwg_ptr_to_unsigned_char_array(unsigned char* array, size_t size) {
+  if (array) {
+    std::vector<unsigned char> data(array, array + size);
+    return emscripten::val(emscripten::typed_memory_view(data.size(), data.data()));
+  }
+  return emscripten::val::null();
+}
+
+emscripten::val dwg_ptr_to_signed_char_array(signed char* array, size_t size) {
+  if (array) {
+    std::vector<unsigned char> data(array, array + size);
+    return emscripten::val(emscripten::typed_memory_view(data.size(), data.data()));
+  }
+  return emscripten::val::null();
+}
+
 emscripten::val dwg_ptr_to_unsigned_char_array_wrapper(uintptr_t array_ptr, size_t size) {
   unsigned char* array = reinterpret_cast<unsigned char*>(array_ptr);
-  emscripten::val jsArray = emscripten::val::array();
-  for (int index = 0; index < size; ++index) {
-    jsArray.call<void>("push", array[index]);
-  }
-  return jsArray;
+  return dwg_ptr_to_unsigned_char_array(array, size);
 }
 
 emscripten::val dwg_ptr_to_signed_char_array_wrapper(uintptr_t array_ptr, size_t size) {
   signed char* array = reinterpret_cast<signed char*>(array_ptr);
-  emscripten::val jsArray = emscripten::val::array();
-  for (int index = 0; index < size; ++index) {
-    jsArray.call<void>("push", array[index]);
-  }
-  return jsArray;
+  return dwg_ptr_to_signed_char_array(array, size);
 }
 
 emscripten::val dwg_ptr_to_point2d_array_wrapper(uintptr_t array_ptr, size_t size) {
