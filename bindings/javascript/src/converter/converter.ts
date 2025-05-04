@@ -123,9 +123,28 @@ export class LibreDwgConverter {
   private convertHeader(data: Dwg_Data_Ptr, header: DwgHeader) {
     const libredwg = this.libredwg
     HEADER_VARIABLES.forEach(name => {
-      const value = libredwg.dwg_dynapi_header_value(data, name).data as
+      let var_name = name
+      if (name == 'DIMBLK' || name == 'DIMBLK1' || name == 'DIMBLK2') {
+        var_name = var_name + '_T'
+      }
+      let value = libredwg.dwg_dynapi_header_value(data, var_name).data as
         | number
         | string
+
+      // Get object name if the 'value' is one Dwg_Object_Ref instance.
+      // TODO: handle 'CMLSTYLE' correctly
+      if (
+        name == 'CELTYPE' ||
+        name == 'CLAYER' ||
+        name == 'CLAYER' ||
+        name == 'DIMSTYLE' ||
+        name == 'DIMTXSTY' ||
+        name == 'TEXTSTYLE'
+      ) {
+        value = libredwg.dwg_ref_get_object_name(value as number)
+      } else if (name == 'DRAGVS') {
+        value = libredwg.dwg_ref_get_absref(value as number)
+      }
       // @ts-expect-error header variable name
       header[name] = value
     })
