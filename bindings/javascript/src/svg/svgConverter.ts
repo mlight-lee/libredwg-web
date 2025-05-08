@@ -13,6 +13,7 @@ import {
   DwgLWPolylineEntity,
   DwgMTextEntity,
   DwgPoint2D,
+  DwgPoint3D,
   DwgPolylineEntity,
   DwgSplineEntity,
   DwgTableCell,
@@ -104,7 +105,10 @@ export class SvgConverter {
     entity: DwgEntity,
     { bbox, element }: { bbox: Box2D; element: string }
   ) {
-    if ('extrusionDirection' in entity && entity.extrusionDirection === -1) {
+    if (
+      'extrusionDirection' in entity &&
+      (entity.extrusionDirection as DwgPoint3D).z === -1
+    ) {
       return {
         bbox: new Box2D()
           .expandByPoint({ x: -bbox.min.x, y: bbox.min.y })
@@ -121,7 +125,7 @@ export class SvgConverter {
       .expandByPoint({ x: entity.startPoint.x, y: entity.startPoint.y })
       .expandByPoint({ x: entity.endPoint.x, y: entity.endPoint.y })
     const element = `<line x1="${entity.startPoint.x}" y1="${entity.startPoint.y}" x2="${entity.endPoint.x}" y2="${entity.endPoint.y}" />`
-    return { bbox, element }
+    return this.addFlipXIfApplicable(entity, { bbox, element })
   }
 
   private extractMTextLines(mtext: string) {
@@ -131,20 +135,26 @@ export class SvgConverter {
         .replace(/\\U\+([0-9A-Fa-f]{4})/g, (_, hex) =>
           String.fromCharCode(parseInt(hex, 16))
         )
+        // Preserve line breaks: replace \P with newline placeholder
+        .replace(/\\P/g, '\n')
         // Remove underline, overline
         .replace(/\\[LOlo]/g, '')
-        // Remove color, background color, height, width, text scale, vertical alignment
-        .replace(/\\[KkCcHhWwTtAa]\d*\.?\d*;?/g, '')
-        // Remove font specs like \fArial|b0|i0;
-        .replace(/\\f[^;]*?;/g, '')
+        // Remove font specs like \FArial|b0|i0|c134|p49;
+        .replace(/\\[Ff][^;\\]*?(?:\|[^;\\]*)*;/g, '')
+        // Remove formatting codes like \H1.0x; \W0.5; \C7 etc.
+        .replace(/\\[KkCcHhWwTtAa][^;\\]*;?/g, '')
+        // Remove general \word; style control codes like \x; \pxqc;
+        .replace(/\\[a-zA-Z]+;?/g, '')
+        // Remove AutoCAD %% control sequences like %%d, %%p, etc.
+        .replace(/%%(d|p|c|%)/gi, '')
         // Replace escaped backslash
         .replace(/\\\\/g, '\\')
         // Replace non-breaking space
         .replace(/\\~/g, '\u00A0')
         // Remove grouping braces
         .replace(/[{}]/g, '')
-        // Split by line breaks (\P)
-        .split(/\\P/)
+        // Split by preserved newlines
+        .split('\n')
         .map(line => line.trim())
         .filter(line => line.length > 0)
     )
@@ -195,12 +205,9 @@ export class SvgConverter {
     ) {
       anchor = 'end'
     }
-    return this.lines(
-      lines,
-      fontsize,
-      insertionPoint,
-      entity.extentsWidth,
-      anchor
+    return this.addFlipXIfApplicable(
+      entity,
+      this.lines(lines, fontsize, insertionPoint, entity.extentsWidth, anchor)
     )
   }
 
@@ -305,7 +312,10 @@ export class SvgConverter {
     } else if (entity.halign == DwgTextHorizontalAlign.RIGHT) {
       anchor = 'end'
     }
-    return this.lines(lines, fontsize, insertionPoint, extentsWidth, anchor)
+    return this.addFlipXIfApplicable(
+      entity,
+      this.lines(lines, fontsize, insertionPoint, extentsWidth, anchor)
+    )
   }
 
   private vertices(
@@ -489,10 +499,10 @@ export class SvgConverter {
   private dimension(entity: DwgDimensionEntity): BBoxAndElement | null {
     const block = this.blockMap.get(entity.name)
     if (block) {
-      return {
+      return this.addFlipXIfApplicable(entity, {
         bbox: block.bbox,
         element: `<use href="#${entity.name}" />`
-      }
+      })
     }
     return null
   }
@@ -501,17 +511,21 @@ export class SvgConverter {
     const block = this.blockMap.get(entity.name)
     if (block) {
       // In SVG, the unit of rotate is degrees — not radians.
+      const insertionPoint = entity.insertionPoint
+      // const basePoint = block.bbox.min
       const rotation = entity.rotation * (180 / Math.PI)
-      const transform = `matrix(${entity.xScale},0,0,${entity.yScale},${entity.insertionPoint.x},${entity.insertionPoint.y}) rotate(${rotation})`
-      const newBBox = block.bbox.applyTransform(
-        { x: entity.xScale, y: entity.yScale },
-        entity.rotation,
-        entity.insertionPoint
-      )
-      return {
+      const transform = `translate(${insertionPoint.x},${insertionPoint.y}) rotate(${rotation})`
+      const newBBox = block.bbox
+        .clone()
+        .transform(
+          { x: entity.xScale, y: entity.yScale },
+          { x: insertionPoint.x, y: insertionPoint.y }
+        )
+        .rotate(entity.rotation, insertionPoint)
+      return this.addFlipXIfApplicable(entity, {
         bbox: newBBox,
         element: `<use href="#${entity.name}" transform="${transform}" />`
-      }
+      })
     }
     return null
   }
@@ -519,8 +533,14 @@ export class SvgConverter {
   private block(
     block: DwgBlockRecordTableEntry,
     dwg: DwgDatabase
-  ): BBoxAndElement {
+  ): BBoxAndElement | null {
     const entities = block.entities
+    console.log(
+      block.name,
+      block.basePoint,
+      block.insertionUnits,
+      block.scalability
+    )
     const { bbox, elements } = entities.reduce(
       (acc: { bbox: Box2D; elements: string[] }, entity: DwgEntity) => {
         const boundsAndElement = this.entityToBoundsAndElement(entity)
@@ -550,10 +570,13 @@ export class SvgConverter {
         elements: []
       }
     )
-    return {
-      bbox,
-      element: `<g id="${block.name}">${elements.join('\n')}</g>`
+    if (bbox.valid) {
+      return {
+        bbox,
+        element: `<g id="${block.name}">${elements.join('\n')}</g>`
+      }
     }
+    return null
   }
 
   private entityToBoundsAndElement(entity: DwgEntity) {
@@ -648,25 +671,28 @@ export class SvgConverter {
         modelSpace = block
       } else {
         const item = this.block(block, dwg)
-        blockElements += item.element
-        this.blockMap.set(block.name, item)
+        if (item) {
+          blockElements += item.element
+          this.blockMap.set(block.name, item)
+        }
       }
     })
 
-    const { bbox, element } = this.block(modelSpace!, dwg)
-    const viewBox = bbox.valid
-      ? {
-          x: bbox.min.x,
-          y: -bbox.max.y,
-          width: bbox.max.x - bbox.min.x,
-          height: bbox.max.y - bbox.min.y
-        }
-      : {
-          x: 0,
-          y: 0,
-          width: 0,
-          height: 0
-        }
+    const ms = this.block(modelSpace!, dwg)
+    const viewBox =
+      ms && ms.bbox.valid
+        ? {
+            x: ms.bbox.min.x,
+            y: -ms.bbox.max.y,
+            width: ms.bbox.max.x - ms.bbox.min.x,
+            height: ms.bbox.max.y - ms.bbox.min.y
+          }
+        : {
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0
+          }
     return `<?xml version="1.0"?>
 <svg
   xmlns="http://www.w3.org/2000/svg"
@@ -677,7 +703,7 @@ export class SvgConverter {
 >
   <defs>${blockElements}</defs>
   <g stroke="#000000" stroke-width="0.1%" fill="none" transform="matrix(1,0,0,-1,0,0)">
-    ${element}
+    ${ms ? ms.element : ''}
   </g>
 </svg>`
   }
