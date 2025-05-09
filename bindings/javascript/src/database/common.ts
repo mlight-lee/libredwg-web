@@ -1,5 +1,5 @@
 const MODEL_SPACE = '*MODEL_SPACE'
-const MODEL_SPACE_PREFIX = '*Paper_Space'
+const MODEL_SPACE_PREFIX = '*PAPER_SPACE'
 
 export const isModelSpace = (name: string) => {
   return name && name.toUpperCase() == MODEL_SPACE

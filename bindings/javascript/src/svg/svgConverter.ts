@@ -15,11 +15,13 @@ import {
   DwgPoint2D,
   DwgPoint3D,
   DwgPolylineEntity,
+  DwgRayEntity,
   DwgSplineEntity,
   DwgTableCell,
   DwgTableEntity,
   DwgTextEntity,
   DwgTextHorizontalAlign,
+  DwgXlineEntity,
   isModelSpace
 } from '../database'
 import { Box2D } from './box2d'
@@ -125,6 +127,37 @@ export class SvgConverter {
       .expandByPoint({ x: entity.startPoint.x, y: entity.startPoint.y })
       .expandByPoint({ x: entity.endPoint.x, y: entity.endPoint.y })
     const element = `<line x1="${entity.startPoint.x}" y1="${entity.startPoint.y}" x2="${entity.endPoint.x}" y2="${entity.endPoint.y}" />`
+    return { bbox, element }
+  }
+
+  private ray(entity: DwgRayEntity): BBoxAndElement {
+    const scale = 10000
+    const firstPoint = entity.firstPoint
+    const secondPoint = {
+      x: firstPoint.x + entity.unitDirection.x * scale,
+      y: firstPoint.y + entity.unitDirection.y * scale
+    }
+    const bbox = new Box2D()
+      .expandByPoint(firstPoint)
+      .expandByPoint(secondPoint)
+    const element = `<line x1="${firstPoint.x}" y1="${firstPoint.y}" x2="${secondPoint.x}" y2="${secondPoint.y}" />`
+    return { bbox, element }
+  }
+
+  private xline(entity: DwgXlineEntity): BBoxAndElement {
+    const scale = 10000
+    const firstPoint = {
+      x: entity.firstPoint.x - entity.unitDirection.x * scale,
+      y: entity.firstPoint.y - entity.unitDirection.y * scale
+    }
+    const secondPoint = {
+      x: entity.firstPoint.x + entity.unitDirection.x * scale,
+      y: entity.firstPoint.y + entity.unitDirection.y * scale
+    }
+    const bbox = new Box2D()
+      .expandByPoint(firstPoint)
+      .expandByPoint(secondPoint)
+    const element = `<line x1="${firstPoint.x}" y1="${firstPoint.y}" x2="${secondPoint.x}" y2="${secondPoint.y}" />`
     return { bbox, element }
   }
 
@@ -624,11 +657,17 @@ export class SvgConverter {
         result = this.vertices(vertices, closed)
         break
       }
+      case 'RAY':
+        result = this.ray(entity as DwgRayEntity)
+        break
       case 'TABLE':
         result = this.table(entity as DwgTableEntity)
         break
       case 'TEXT':
         result = this.text(entity as DwgTextEntity)
+        break
+      case 'XLINE':
+        result = this.xline(entity as DwgXlineEntity)
         break
       default:
         result = null
