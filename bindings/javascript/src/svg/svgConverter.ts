@@ -125,7 +125,7 @@ export class SvgConverter {
       .expandByPoint({ x: entity.startPoint.x, y: entity.startPoint.y })
       .expandByPoint({ x: entity.endPoint.x, y: entity.endPoint.y })
     const element = `<line x1="${entity.startPoint.x}" y1="${entity.startPoint.y}" x2="${entity.endPoint.x}" y2="${entity.endPoint.y}" />`
-    return this.addFlipXIfApplicable(entity, { bbox, element })
+    return { bbox, element }
   }
 
   private extractMTextLines(mtext: string) {
@@ -205,9 +205,12 @@ export class SvgConverter {
     ) {
       anchor = 'end'
     }
-    return this.addFlipXIfApplicable(
-      entity,
-      this.lines(lines, fontsize, insertionPoint, entity.extentsWidth, anchor)
+    return this.lines(
+      lines,
+      fontsize,
+      insertionPoint,
+      entity.extentsWidth,
+      anchor
     )
   }
 
@@ -312,10 +315,7 @@ export class SvgConverter {
     } else if (entity.halign == DwgTextHorizontalAlign.RIGHT) {
       anchor = 'end'
     }
-    return this.addFlipXIfApplicable(
-      entity,
-      this.lines(lines, fontsize, insertionPoint, extentsWidth, anchor)
-    )
+    return this.lines(lines, fontsize, insertionPoint, extentsWidth, anchor)
   }
 
   private vertices(
@@ -348,10 +348,10 @@ export class SvgConverter {
         y: entity.center.y - entity.radius
       })
     const element0 = `<circle cx="${entity.center.x}" cy="${entity.center.y}" r="${entity.radius}" />`
-    return this.addFlipXIfApplicable(entity, {
+    return {
       bbox: bbox0,
       element: element0
-    })
+    }
   }
 
   private ellipseOrArc(
@@ -474,10 +474,10 @@ export class SvgConverter {
       entity.startAngle,
       entity.endAngle
     )
-    return this.addFlipXIfApplicable(entity, {
+    return {
       bbox: bbox0,
       element: element0
-    })
+    }
   }
 
   private arc(entity: DwgArcEntity): BBoxAndElement {
@@ -490,19 +490,19 @@ export class SvgConverter {
       entity.startAngle,
       entity.endAngle
     )
-    return this.addFlipXIfApplicable(entity, {
+    return {
       bbox: bbox0,
       element: element0
-    })
+    }
   }
 
   private dimension(entity: DwgDimensionEntity): BBoxAndElement | null {
     const block = this.blockMap.get(entity.name)
     if (block) {
-      return this.addFlipXIfApplicable(entity, {
+      return {
         bbox: block.bbox,
         element: `<use href="#${entity.name}" />`
-      })
+      }
     }
     return null
   }
@@ -514,7 +514,7 @@ export class SvgConverter {
       const insertionPoint = entity.insertionPoint
       // const basePoint = block.bbox.min
       const rotation = entity.rotation * (180 / Math.PI)
-      const transform = `translate(${insertionPoint.x},${insertionPoint.y}) rotate(${rotation})`
+      const transform = `translate(${insertionPoint.x},${insertionPoint.y}) rotate(${rotation}) scale(${entity.xScale},${entity.yScale})`
       const newBBox = block.bbox
         .clone()
         .transform(
@@ -522,10 +522,10 @@ export class SvgConverter {
           { x: insertionPoint.x, y: insertionPoint.y }
         )
         .rotate(entity.rotation, insertionPoint)
-      return this.addFlipXIfApplicable(entity, {
+      return {
         bbox: newBBox,
         element: `<use href="#${entity.name}" transform="${transform}" />`
-      })
+      }
     }
     return null
   }
@@ -580,30 +580,39 @@ export class SvgConverter {
   }
 
   private entityToBoundsAndElement(entity: DwgEntity) {
+    let result = null
     switch (entity.type) {
       case 'ARC':
-        return this.arc(entity as DwgArcEntity)
+        result = this.arc(entity as DwgArcEntity)
+        break
       case 'CIRCLE':
-        return this.circle(entity as DwgCircleEntity)
+        result = this.circle(entity as DwgCircleEntity)
+        break
       case 'DIMENSION':
-        return this.dimension(entity as DwgDimensionEntity)
+        result = this.dimension(entity as DwgDimensionEntity)
+        break
       case 'ELLIPSE':
-        return this.ellipse(entity as DwgEllipseEntity)
+        result = this.ellipse(entity as DwgEllipseEntity)
+        break
       case 'INSERT':
-        return this.insert(entity as DwgInsertEntity)
+        result = this.insert(entity as DwgInsertEntity)
+        break
       case 'LINE':
-        return this.line(entity as DwgLineEntity)
+        result = this.line(entity as DwgLineEntity)
+        break
       case 'LWPOLYLINE': {
         const lwpolyline = entity as DwgLWPolylineEntity
         const closed = !!(lwpolyline.flag & 0x200)
         const vertices = interpolatePolyline(lwpolyline, closed)
-        return this.vertices(vertices, closed)
+        result = this.vertices(vertices, closed)
+        break
       }
       case 'MTEXT':
-        return this.mtext(entity as DwgMTextEntity)
+        result = this.mtext(entity as DwgMTextEntity)
+        break
       case 'SPLINE': {
         const spline = entity as DwgSplineEntity
-        return this.vertices(
+        result = this.vertices(
           this.interpolateBSpline(
             spline.controlPoints,
             spline.degree,
@@ -612,20 +621,29 @@ export class SvgConverter {
             spline.weights
           )
         )
+        break
       }
       case 'POLYLINE': {
         const polyline = entity as DwgPolylineEntity
         const closed = !!(polyline.flag & 0x1)
         const vertices = interpolatePolyline(polyline, closed)
-        return this.vertices(vertices, closed)
+        result = this.vertices(vertices, closed)
+        break
       }
       case 'TABLE':
-        return this.table(entity as DwgTableEntity)
+        result = this.table(entity as DwgTableEntity)
+        break
       case 'TEXT':
-        return this.text(entity as DwgTextEntity)
+        result = this.text(entity as DwgTextEntity)
+        break
       default:
-        return null
+        result = null
+        break
     }
+    if (result) {
+      return this.addFlipXIfApplicable(entity, result)
+    }
+    return null
   }
 
   private getEntityColor(
