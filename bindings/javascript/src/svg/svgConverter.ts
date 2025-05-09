@@ -20,7 +20,7 @@ import {
   DwgTableEntity,
   DwgTextEntity,
   DwgTextHorizontalAlign,
-  MODEL_SPACE
+  isModelSpace
 } from '../database'
 import { Box2D } from './box2d'
 import { evaluateBSpline } from './bspline'
@@ -535,12 +535,6 @@ export class SvgConverter {
     dwg: DwgDatabase
   ): BBoxAndElement | null {
     const entities = block.entities
-    console.log(
-      block.name,
-      block.basePoint,
-      block.insertionUnits,
-      block.scalability
-    )
     const { bbox, elements } = entities.reduce(
       (acc: { bbox: Box2D; elements: string[] }, entity: DwgEntity) => {
         const boundsAndElement = this.entityToBoundsAndElement(entity)
@@ -685,7 +679,7 @@ export class SvgConverter {
     this.blockMap.clear()
     let blockElements = ''
     dwg.tables.BLOCK_RECORD.entries.forEach(block => {
-      if (block.name === MODEL_SPACE) {
+      if (isModelSpace(block.name)) {
         modelSpace = block
       } else {
         const item = this.block(block, dwg)
